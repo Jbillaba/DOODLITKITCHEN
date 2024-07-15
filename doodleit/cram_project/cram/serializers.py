@@ -50,10 +50,12 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
         fields=['url', 'id', 'image', 'created_on', 'doodlr']
 
     def get_doodler(self, object):
-        return object.doodler.username
+        return object.doodlr.username
     
     def get_timesince(self, object):
         return naturaltime(object.created_on)
+    
+        
     
     # def create(self, validated_data):
     #     validated_data['doodlr']=self.context['request'].user
