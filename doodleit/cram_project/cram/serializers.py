@@ -1,4 +1,4 @@
-from .models import User
+from .models import User, Doodle
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -40,3 +40,21 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
+    
+
+class DoodleSerializer(serializers.HyperlinkedModelSerializer):
+    # doodlr=serializers.SerializerMethodField("get_doodler")
+    created_on=serializers.SerializerMethodField("get_timesince")
+    class Meta: 
+        model=Doodle
+        fields=['url', 'id', 'image', 'created_on', 'doodlr']
+
+    def get_doodler(self, object):
+        return object.doodler.username
+    
+    def get_timesince(self, object):
+        return naturaltime(object.created_on)
+    
+    # def create(self, validated_data):
+    #     validated_data['doodlr']=self.context['request'].user
+    #     return super(DoodleSerializer, self).create(validated_data)
