@@ -38,6 +38,10 @@ DEBUG = os.getenv("IN_DEBUG")
 ALLOWED_HOSTS = []
 
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:4200'
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,9 +54,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'cram',
     'storages',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
