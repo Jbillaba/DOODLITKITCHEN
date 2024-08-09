@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser
 from django.utils import timesince
 
-class User(AbstractBaseUser):
+class User(AbstractUser):
     username=models.CharField(max_length=20, unique=True)
     email=models.EmailField(max_length=40, unique=True)
     password=models.CharField(max_length=128)
