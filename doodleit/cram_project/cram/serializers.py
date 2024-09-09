@@ -45,7 +45,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
 
 class DoodleSerializer(serializers.HyperlinkedModelSerializer):
-    # doodlr=serializers.SerializerMethodField("get_doodler")
+    content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
+    doodlr=serializers.SerializerMethodField("get_doodler")
     created_on=serializers.SerializerMethodField("get_timesince")
     class Meta: 
         model=Doodle
@@ -57,9 +58,13 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     def get_timesince(self, object):
         return naturaltime(object.created_on)
     
-    # def create(self, validated_data):
-    #     validated_data['doodlr']=self.context['request'].user
-    #     return super(DoodleSerializer, self).create(validated_data)
+    def create(self, validated_data):
+        doodle = Doodle.objects.create(
+            image=validated_data['image'],
+            doodlr=self.context['request'].user
+        )
+        doodle.save()
+        return super(DoodleSerializer, self).create(validated_data)
 
 class LoginSerializer(serializers.Serializer):
     username=serializers.CharField()

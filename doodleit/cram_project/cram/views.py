@@ -3,8 +3,12 @@ from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
+from rest_framework.decorators import action
+
 from knox.views import LoginView as KnoxLoginView
+from knox.auth import TokenAuthentication
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -22,9 +26,18 @@ class UserViewSet(viewsets.ModelViewSet):
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
     serializer_class=DoodleSerializer
-    permission_classes=(AllowAny,)
+    authentication_classes=(TokenAuthentication,)
+    permission_classes=(IsAuthenticatedOrReadOnly,)
+    parser_classes=(MultiPartParser,)
     filter_backends=[filters.OrderingFilter]
     ordering_fields=['created_on']
+
+    @action(methods=['put'], detail=True, parser_classes=[MultiPartParser])
+    def upload_file(self, request, pk=None):
+        obj = self.get_object()
+        obj.file=request.data['file']
+        obj.save()
+        return Response(status=204)
     
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
