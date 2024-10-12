@@ -3,9 +3,8 @@ from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
-from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
-from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.parsers import MultiPartParser
 
 from knox.views import LoginView as KnoxLoginView
 from knox.auth import TokenAuthentication
@@ -32,12 +31,6 @@ class DoodleViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter]
     ordering_fields=['created_on']
 
-    @action(methods=['put'], detail=True, parser_classes=[MultiPartParser])
-    def upload_file(self, request, pk=None):
-        obj = self.get_object()
-        obj.file=request.data['file']
-        obj.save()
-        return Response(status=204)
     
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer

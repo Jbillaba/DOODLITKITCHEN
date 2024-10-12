@@ -12,6 +12,7 @@ class User(AbstractUser):
         return self.username
 
 class Doodle(models.Model):
+    title=models.CharField(max_length=40, default='')
     image=models.FileField()
     created_on=models.DateTimeField(auto_now_add=True)
     doodlr=models.ForeignKey(User, on_delete=models.CASCADE, related_name='doodler')
