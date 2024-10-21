@@ -34,7 +34,6 @@ class DoodleViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
     serializer_class=CommentSerializer
-    parser_classes=(MultiPartParser,)
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter,]
     ordering_fields=['created_on']

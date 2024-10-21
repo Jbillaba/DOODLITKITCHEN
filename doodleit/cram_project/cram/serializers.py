@@ -44,9 +44,20 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return naturaltime(object.created_on)
     
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    author=serializers.SerializerMethodField("get_author")
     class Meta:
         model=Comment
-        fields=['url', 'id', 'author', 'text', 'image', 'created_on']
+        fields=['url', 'id', 'author', 'text', 'post','created_on']
+    
+    def get_author(self, object):
+        return object.author.username
+    
+    def get_post_id(self, object):
+        return object.post.id
+    
+    def create(self, validated_data):
+        validated_data['author']=self.context['request'].user
+        return super(CommentSerializer, self).create(validated_data)
 
 class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'

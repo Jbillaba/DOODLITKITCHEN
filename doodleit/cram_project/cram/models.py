@@ -28,5 +28,4 @@ class Comment(models.Model):
     post=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='originpost')
     author=models.ForeignKey(User, on_delete=models.CASCADE, related_name='commentauthor')
     text=models.TextField(max_length=140)
-    image=models.FileField()
     created_on=models.DateTimeField(auto_now_add=True)
