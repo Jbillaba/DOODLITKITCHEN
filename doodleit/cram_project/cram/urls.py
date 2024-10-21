@@ -9,6 +9,7 @@ from knox import views as knox_views
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'doodles', views.DoodleViewSet)
+router.register(r'comments', views.CommentViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),

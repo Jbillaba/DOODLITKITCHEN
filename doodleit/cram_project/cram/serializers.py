@@ -1,4 +1,4 @@
-from .models import User, Doodle
+from .models import User, Doodle, Comment
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -43,6 +43,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
     
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model=Comment
+        fields=['url', 'id', 'author', 'text', 'image', 'created_on']
 
 class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'

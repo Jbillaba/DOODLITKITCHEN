@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, filters
 from django.contrib.auth import login
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .models import User, Doodle
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer
+from .models import User, Doodle, Comment
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser
 
@@ -31,6 +31,13 @@ class DoodleViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter]
     ordering_fields=['created_on']
 
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset=Comment.objects.all()
+    serializer_class=CommentSerializer
+    parser_classes=(MultiPartParser,)
+    permission_classes=(IsAuthenticatedOrReadOnly,)
+    filter_backends=[filters.OrderingFilter,]
+    ordering_fields=['created_on']
     
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
