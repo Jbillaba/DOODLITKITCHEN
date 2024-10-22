@@ -38,7 +38,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     account_created=serializers.SerializerMethodField("get_time_since_created")
     class Meta:
         model=User
-        fields=['url','id','username','email','account_created','password']
+        fields=['url','id', 'profile_picture' ,'username','email','account_created','password']
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
@@ -47,7 +47,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_author")
     class Meta:
         model=Comment
-        fields=['url', 'id', 'author', 'text', 'post','created_on']
+        fields=['url', 'id', 'author','text', 'post','created_on']
     
     def get_author(self, object):
         return object.author.username
