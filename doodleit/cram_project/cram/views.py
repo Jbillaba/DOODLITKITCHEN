@@ -35,8 +35,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
     serializer_class=CommentSerializer
     permission_classes=(IsAuthenticatedOrReadOnly,)
-    filter_backends=[filters.OrderingFilter,]
+    filter_backends=[filters.OrderingFilter,filters.SearchFilter]
     ordering_fields=['created_on']
+    search_fields=['post__id']
     
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
