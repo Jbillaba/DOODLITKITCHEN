@@ -19,8 +19,9 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class=UserSerializer
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields=['username', 'name']
-    search_fields=['username', 'name']
+    ordering_fields=['username']
+    search_fields=['username']
+    lookup_field='username'
 
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()

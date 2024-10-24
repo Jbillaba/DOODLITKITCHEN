@@ -39,6 +39,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=User
         fields=['url','id', 'profile_picture' ,'username','email','account_created','password']
+        extra_kwargs={
+            'url': {'lookup_field': 'username'}
+        }
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)

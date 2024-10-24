@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timesince
+defaultPicture='https://doodler-bucket.s3.us-east-2.amazonaws.com/default.png'
 
 class User(AbstractUser):
     username=models.CharField(max_length=20, unique=True)
-    profile_picture=models.FileField(default="s3://doodler-bucket/default.png")
+    profile_picture=models.FileField(default=defaultPicture)
     email=models.EmailField(max_length=40, unique=True)
     password=models.CharField(max_length=128)
     created_on=models.DateTimeField(auto_now_add=True)
