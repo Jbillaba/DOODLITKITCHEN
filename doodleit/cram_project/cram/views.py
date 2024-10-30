@@ -7,7 +7,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser
 
 from knox.views import LoginView as KnoxLoginView
-from knox.auth import TokenAuthentication
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -26,7 +25,6 @@ class UserViewSet(viewsets.ModelViewSet):
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
     serializer_class=DoodleSerializer
-    authentication_classes=(TokenAuthentication,)
     permission_classes=(IsAuthenticatedOrReadOnly,)
     parser_classes=(MultiPartParser,)
     filter_backends=[filters.OrderingFilter]
@@ -49,4 +47,16 @@ class LoginView(KnoxLoginView):
         serializer.is_valid(raise_exception=True)
         user=serializer.validated_data['user']
         login(request, user)
-        return super(LoginView, self).post(request, format=None)
+        response=super(LoginView, self).post(request, format=None)
+    
+        token=response.data['token']
+        del response.data['token']
+        
+        response.set_cookie(
+            'token',
+            token,
+            httponly=True,
+            samesite=None
+        )
+
+        return response
