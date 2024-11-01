@@ -1,12 +1,14 @@
-from rest_framework import viewsets, generics, filters
-from django.contrib.auth import login
+from rest_framework import viewsets, generics, filters, views
+from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
-
+from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
+from knox.views import LogoutView as KnoxLogoutView
+
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -37,7 +39,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter,filters.SearchFilter]
     ordering_fields=['created_on']
     search_fields=['post__id']
-    
+
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
     permission_classes = (AllowAny,)
@@ -56,7 +58,15 @@ class LoginView(KnoxLoginView):
             'token',
             token,
             httponly=True,
-            samesite=None
+            samesite=None,
+            secure=True
         )
-
         return response
+
+class LogoutView(views.APIView):
+    def get(self, req):
+        return Response({"logged out succesfully, goodbye ": req.user.username}, status=200)
+    def post(self, req):
+        req.delete_cookie("sessionid")
+        req.delete_cookie("token")
+        return req

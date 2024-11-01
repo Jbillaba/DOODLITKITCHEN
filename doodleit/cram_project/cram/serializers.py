@@ -48,6 +48,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_author")
+    post=serializers.SerializerMethodField("get_post_id")
     class Meta:
         model=Comment
         fields=['url', 'id', 'author','text', 'post','created_on']

@@ -37,12 +37,7 @@ SECRET_KEY = DJANGOKEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("IN_DEBUG")
 
-ALLOWED_HOSTS = []
 
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4200'
-]
 
 # Application definition
 
@@ -183,3 +178,11 @@ REST_KNOX = {
 }
 
 AUTH_USER_MODEL="cram.User"
+
+#cors settings
+ALLOWED_HOSTS = []
+
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:4200'
+]
