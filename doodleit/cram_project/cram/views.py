@@ -10,6 +10,7 @@ from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutView as KnoxLogoutView
 
 
+
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
     serializer_class=RegisterSerializer
@@ -63,10 +64,8 @@ class LoginView(KnoxLoginView):
         )
         return response
 
-class LogoutView(views.APIView):
-    def get(self, req):
-        return Response({"logged out succesfully, goodbye ": req.user.username}, status=200)
+class LogoutView(KnoxLogoutView):
     def post(self, req):
-        req.delete_cookie("sessionid")
         req.delete_cookie("token")
+        logout(req, req.user)
         return req
