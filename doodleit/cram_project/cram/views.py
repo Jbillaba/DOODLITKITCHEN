@@ -8,9 +8,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutView as KnoxLogoutView
-
-
-
+from django.http import HttpResponseRedirect
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
     serializer_class=RegisterSerializer
@@ -64,8 +62,9 @@ class LoginView(KnoxLoginView):
         )
         return response
 
-class LogoutView(KnoxLogoutView):
-    def post(self, req):
-        req.delete_cookie("token")
-        logout(req, req.user)
-        return req
+class LogoutView(views.APIView):
+    def post(self, req, format=None):
+        logout(req)
+        response=HttpResponseRedirect('/')    
+        response.delete_cookie('token')    
+        return response

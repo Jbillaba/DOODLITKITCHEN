@@ -3,7 +3,6 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth import authenticate
-from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 class RegisterSerializer(serializers.ModelSerializer):
     password=serializers.CharField(
