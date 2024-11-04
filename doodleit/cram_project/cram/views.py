@@ -65,6 +65,6 @@ class LoginView(KnoxLoginView):
 class LogoutView(views.APIView):
     def post(self, req, format=None):
         logout(req)
-        response=HttpResponseRedirect('/')    
+        response=Response({'details':'bye bye'})
         response.delete_cookie('token')    
         return response
