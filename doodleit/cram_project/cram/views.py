@@ -58,7 +58,6 @@ class LoginView(KnoxLoginView):
             token,
             httponly=True,
             samesite=None,
-            secure=True
         )
         return response
 

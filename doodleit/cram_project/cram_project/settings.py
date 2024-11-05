@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 from rest_framework.settings import api_settings
 from dotenv import load_dotenv
+from corsheaders.defaults import default_headers
 import os
 
 load_dotenv()
@@ -23,6 +24,7 @@ DB_NAME = os.getenv("DATABASENAME")
 DB_USER = os.getenv("DATABASEUSER")
 DB_PASSWORD = os.getenv("DATABASEUSERPASS")
 
+devFrontEnd = 'http://localhost:8000'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -155,6 +157,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('cram.middleware.AuthFromCookie',),
 }
 
+CSRF_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_SAMESITE = False
+
 #S3 credentials 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_KEY")
@@ -180,9 +186,17 @@ REST_KNOX = {
 AUTH_USER_MODEL="cram.User"
 
 #cors settings
-ALLOWED_HOSTS = []
 
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4200'
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:4200',
 ]
+
+CORS_ALLOW_CREDENTIALS: True
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:4200',
+]
+
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+)
