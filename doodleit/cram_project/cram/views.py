@@ -7,8 +7,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
-from knox.views import LogoutView as KnoxLogoutView
-from django.http import HttpResponseRedirect
+
+
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
     serializer_class=RegisterSerializer
@@ -52,12 +52,13 @@ class LoginView(KnoxLoginView):
     
         token=response.data['token']
         del response.data['token']
-        
         response.set_cookie(
             'token',
             token,
             httponly=True,
             samesite=None,
+            secure=True,
+            domain='http://127.0.0.1:4200'
         )
         return response
 

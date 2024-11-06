@@ -15,6 +15,7 @@ from datetime import timedelta
 from rest_framework.settings import api_settings
 from dotenv import load_dotenv
 from corsheaders.defaults import default_headers
+from corsheaders.defaults import default_methods
 import os
 
 load_dotenv()
@@ -24,7 +25,6 @@ DB_NAME = os.getenv("DATABASENAME")
 DB_USER = os.getenv("DATABASEUSER")
 DB_PASSWORD = os.getenv("DATABASEUSERPASS")
 
-devFrontEnd = 'http://localhost:8000'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,7 +159,9 @@ REST_FRAMEWORK = {
 
 CSRF_COOKIE_HTTPONLY = True
 
-CSRF_COOKIE_SAMESITE = False
+SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_SAMESITE = None
 
 #S3 credentials 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
@@ -189,6 +191,7 @@ AUTH_USER_MODEL="cram.User"
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',
+    'http://127.0.0.1:4200'
 ]
 
 CORS_ALLOW_CREDENTIALS: True
@@ -199,4 +202,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOW_HEADERS = (
     *default_headers,
+    'credentials'
+)
+
+CORS_ALLOW_METHODS = (
+    *default_methods,
 )
