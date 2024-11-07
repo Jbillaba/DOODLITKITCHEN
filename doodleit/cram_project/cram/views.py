@@ -56,9 +56,9 @@ class LoginView(KnoxLoginView):
             'token',
             token,
             httponly=True,
-            samesite=None,
+            samesite='None',
             secure=True,
-            domain='http://127.0.0.1:4200'
+            domain="localhost"
         )
         return response
 

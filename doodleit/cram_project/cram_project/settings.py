@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'cram',
     'storages',
     'corsheaders',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -159,9 +160,10 @@ REST_FRAMEWORK = {
 
 CSRF_COOKIE_HTTPONLY = True
 
-SESSION_COOKIE_SECURE = True
 
 SESSION_COOKIE_SAMESITE = None
+
+SESSION_COOKIE_DOMAIN = "localhost"
 
 #S3 credentials 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
