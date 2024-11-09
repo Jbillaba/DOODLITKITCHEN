@@ -15,7 +15,6 @@ from datetime import timedelta
 from rest_framework.settings import api_settings
 from dotenv import load_dotenv
 from corsheaders.defaults import default_headers
-from corsheaders.defaults import default_methods
 import os
 
 load_dotenv()
@@ -160,10 +159,17 @@ REST_FRAMEWORK = {
 
 CSRF_COOKIE_HTTPONLY = True
 
+CSRF_COOKIE_SAMESITE = "None"
 
-SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_DOMAIN = "localhost"
+
+CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SAMESITE = "None"
 
 SESSION_COOKIE_DOMAIN = "localhost"
+
+SESSION_COOKIE_SECURE = True
 
 #S3 credentials 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
@@ -193,20 +199,10 @@ AUTH_USER_MODEL="cram.User"
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',
-    'http://127.0.0.1:4200'
 ]
 
-CORS_ALLOW_CREDENTIALS: True
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:4200',
 ]
-
-CORS_ALLOW_HEADERS = (
-    *default_headers,
-    'credentials'
-)
-
-CORS_ALLOW_METHODS = (
-    *default_methods,
-)

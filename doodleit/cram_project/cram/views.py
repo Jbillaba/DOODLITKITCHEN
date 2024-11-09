@@ -58,7 +58,6 @@ class LoginView(KnoxLoginView):
             httponly=True,
             samesite='None',
             secure=True,
-            domain="localhost"
         )
         return response
 
@@ -66,5 +65,5 @@ class LogoutView(views.APIView):
     def post(self, req, format=None):
         logout(req)
         response=Response({'details':'bye bye'})
-        response.delete_cookie('token')    
+        response.delete_cookie('token')
         return response
