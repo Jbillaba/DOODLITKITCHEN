@@ -11,7 +11,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api/', include('rest_framework.urls')),
-    path('api/register/', views.RegisterView.as_view(), name='register_view'),
+    path('register/', views.RegisterView.as_view(), name='register_view'),
     path('login/', views.LoginView.as_view(), name='knox_login'),
     path('logout/', views.LogoutView.as_view(), name='knox_logout'),
+    path('whoami/', views.whoAmIView.as_view(), name='identifier')
 ]

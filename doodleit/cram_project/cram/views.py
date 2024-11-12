@@ -1,4 +1,4 @@
-from rest_framework import viewsets, generics, filters, views
+from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment
@@ -7,7 +7,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -67,3 +68,13 @@ class LogoutView(views.APIView):
         response=Response({'details':'bye bye'})
         response.delete_cookie('token')
         return response
+    
+class whoAmIView(views.APIView):
+    permission_classes=(IsAuthenticated,)
+
+    @method_decorator(cache_page(60*60*2))
+    def get(self, request):
+        user=request.user
+        content={"username":user.username, "profile_picture":str(user.profile_picture)}
+
+        return Response(content, status=status.HTTP_200_OK)
