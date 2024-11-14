@@ -6,6 +6,7 @@ from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, L
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from django.http.request import HttpRequest as Request 
 from knox.views import LoginView as KnoxLoginView
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -60,6 +61,14 @@ class LoginView(KnoxLoginView):
             samesite='None',
             secure=True,
         )
+        response.set_cookie(
+            'user',
+            {'pfp': str(user.profile_picture),
+             'username': user.username
+            },
+            samesite='None',
+            secure=True
+        )
         return response
 
 class LogoutView(views.APIView):
@@ -69,12 +78,3 @@ class LogoutView(views.APIView):
         response.delete_cookie('token')
         return response
     
-class whoAmIView(views.APIView):
-    permission_classes=(IsAuthenticated,)
-
-    @method_decorator(cache_page(60*60*2))
-    def get(self, request):
-        user=request.user
-        content={"username":user.username, "profile_picture":str(user.profile_picture)}
-
-        return Response(content, status=status.HTTP_200_OK)
