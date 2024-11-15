@@ -1,15 +1,12 @@
-from rest_framework import viewsets, generics, filters, views, status
+from rest_framework import viewsets, generics, filters, views
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from django.http.request import HttpRequest as Request 
 from knox.views import LoginView as KnoxLoginView
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -30,8 +27,9 @@ class DoodleViewSet(viewsets.ModelViewSet):
     serializer_class=DoodleSerializer
     permission_classes=(IsAuthenticatedOrReadOnly,)
     parser_classes=(MultiPartParser,)
-    filter_backends=[filters.OrderingFilter]
+    filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['created_on']
+    search_fields=['doodlr__username']
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
@@ -39,6 +37,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter,filters.SearchFilter]
     ordering_fields=['created_on']
+    search_fields=['post__id']
 
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
