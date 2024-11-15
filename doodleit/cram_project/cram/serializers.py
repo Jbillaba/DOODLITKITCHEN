@@ -12,7 +12,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=User
-        fields=['username','email','password','password2']
+        fields=['username','email','password','password2', 'profile_picture']
     
     def validate(self, attrs):
         if attrs['password']!=attrs['password2']:
@@ -26,7 +26,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user=User.objects.create(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            profile_picture=validated_data['profile_picture']
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -47,10 +48,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_author")
-    post=serializers.SerializerMethodField("get_post_id")
+    post_id=serializers.SerializerMethodField("get_post_id")
     class Meta:
         model=Comment
-        fields=['url', 'id', 'author','text', 'post','created_on']
+        fields=['url', 'id', 'author','text', 'post', 'post_id', 'created_on']
     
     def get_author(self, object):
         return object.author.username
@@ -66,15 +67,20 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
     doodlr=serializers.SerializerMethodField("get_doodler")
     created_on=serializers.SerializerMethodField("get_timesince")
+    number_of_comments=serializers.SerializerMethodField("get_number_of_comments")
     class Meta: 
         model=Doodle
-        fields=['url','id','title','image','created_on','doodlr']
+        fields=['url','id','title','image','created_on','doodlr', 'number_of_comments']
 
     def get_doodler(self, object):
         return object.doodlr.username
     
     def get_timesince(self, object):
         return naturaltime(object.created_on)
+    
+    def get_number_of_comments(self, object):
+        comments=Comment.objects.filter(post=object.id).count()
+        return comments
     
     def create(self, validated_data):
         validated_data['doodlr']=self.context['request'].user

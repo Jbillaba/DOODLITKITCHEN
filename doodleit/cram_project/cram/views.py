@@ -39,7 +39,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter,filters.SearchFilter]
     ordering_fields=['created_on']
-    search_fields=['post__id']
 
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
@@ -60,14 +59,6 @@ class LoginView(KnoxLoginView):
             httponly=True,
             samesite='None',
             secure=True,
-        )
-        response.set_cookie(
-            'user',
-            {'pfp': str(user.profile_picture),
-             'username': user.username
-            },
-            samesite='None',
-            secure=True
         )
         return response
 
