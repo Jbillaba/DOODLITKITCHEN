@@ -47,17 +47,21 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return naturaltime(object.created_on)
     
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
-    author=serializers.SerializerMethodField("get_author")
+    author=serializers.SerializerMethodField("get_username")
     post_id=serializers.SerializerMethodField("get_post_id")
+    created_on=serializers.SerializerMethodField("humanize_time")
     class Meta:
         model=Comment
         fields=['url', 'id', 'author','text', 'post', 'post_id', 'created_on']
     
-    def get_author(self, object):
+    def get_username(self, object):
         return object.author.username
     
     def get_post_id(self, object):
         return object.post.id
+    
+    def humanize_time(self, object):
+        return naturaltime(object.created_on)
     
     def create(self, validated_data):
         validated_data['author']=self.context['request'].user
