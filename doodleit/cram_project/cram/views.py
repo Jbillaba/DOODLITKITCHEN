@@ -1,12 +1,13 @@
-from rest_framework import viewsets, generics, filters, views
+from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
+from orjson import dumps
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -29,7 +30,19 @@ class DoodleViewSet(viewsets.ModelViewSet):
     parser_classes=(MultiPartParser,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['created_on']
-    search_fields=['doodlr__username']
+    search_fields=['doodlr___username']
+
+class UserDoodleList(views.APIView):
+    permission_classes=(IsAuthenticated,)
+
+    def get(self, request, format=None):
+        doodles=Doodle.objects.filter(doodlr=request.user.id)
+        serializer_context={
+            'request': request,
+        }
+        data=DoodleSerializer(doodles, context=serializer_context, many=True).data
+        return Response(data)
+    
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
@@ -67,4 +80,3 @@ class LogoutView(views.APIView):
         response=Response({'details':'bye bye'})
         response.delete_cookie('token')
         return response
-    
