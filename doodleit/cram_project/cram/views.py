@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .models import User, Doodle, Comment
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer
+from .models import User, Doodle, Comment, Yeahs
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -21,7 +21,6 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['username']
     search_fields=['username']
-    lookup_field='username'
 
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
@@ -32,7 +31,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
     ordering_fields=['created_on']
     search_fields=['doodlr___username']
 
-class UserDoodleList(views.APIView):
+class CurrentUserDoodleList(views.APIView):
     permission_classes=(IsAuthenticated,)
 
     def get(self, request, format=None):
@@ -51,6 +50,13 @@ class CommentViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter,filters.SearchFilter]
     ordering_fields=['created_on']
     search_fields=['post__id']
+
+class YeahViewSet(viewsets.ModelViewSet):
+    queryset=Yeahs.objects.all()
+    serializer_class=YeahSerializer
+    permission_classes=(IsAuthenticatedOrReadOnly,)
+    filter_backends=[filters.OrderingFilter]
+    ordering_fields=['created_on']
 
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer

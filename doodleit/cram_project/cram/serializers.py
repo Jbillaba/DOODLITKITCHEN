@@ -1,4 +1,4 @@
-from .models import User, Doodle, Comment
+from .models import User, Doodle, Comment, Yeahs
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -39,9 +39,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=User
         fields=['url','id', 'profile_picture' ,'username','email','account_created','password']
-        extra_kwargs={
-            'url': {'lookup_field': 'username'}
-        }
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
@@ -90,11 +87,27 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['doodlr']=self.context['request'].user
         return super(DoodleSerializer, self).create(validated_data)
 
+class YeahSerializer(serializers.HyperlinkedModelSerializer):
+    created_on=serializers.SerializerMethodField('get_timesince')
+    liker=serializers.SerializerMethodField("get_liker")
+    class Meta:
+        model=Yeahs
+        fields=['url', 'id',  'liker', 'post', 'type', 'created_on']
+    
+    def get_timesince(self, object):
+        return naturaltime(object.created_on)
+    
+    def get_liker(self, object):
+        return object.liker.username
+
+    def create(self, validated_data):
+        validated_data['liker']=self.context['request'].user
+        return super(YeahSerializer, self).create(validated_data)
+
 class LoginSerializer(serializers.Serializer):
     username=serializers.CharField()
-    password=serializers.CharField(
-        
-    )
+    password=serializers.CharField()
+
     def validate(self, attrs):
         username=attrs.get('username')
         password=attrs.get('password')

@@ -7,11 +7,12 @@ router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'doodles', views.DoodleViewSet)
 router.register(r'comments', views.CommentViewSet)
+router.register(r'yeahs', views.YeahViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api/', include('rest_framework.urls')),
-    path('user_doodles/', views.UserDoodleList.as_view(), name='user_doodles'),
+    path('user_doodles/', views.CurrentUserDoodleList.as_view(), name='user_doodles'),
     path('register/', views.RegisterView.as_view(), name='register_view'),
     path('login/', views.LoginView.as_view(), name='knox_login'),
     path('logout/', views.LogoutView.as_view(), name='knox_logout'),
