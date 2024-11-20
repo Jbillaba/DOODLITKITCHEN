@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth import authenticate
+from django.db.models import Q, Count, Sum, Case, IntegerField, Sum, When
 
 class RegisterSerializer(serializers.ModelSerializer):
     password=serializers.CharField(
@@ -69,9 +70,10 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     doodlr=serializers.SerializerMethodField("get_doodler")
     created_on=serializers.SerializerMethodField("get_timesince")
     number_of_comments=serializers.SerializerMethodField("get_number_of_comments")
+    yeahs=serializers.SerializerMethodField("get_yeahs")
     class Meta: 
         model=Doodle
-        fields=['url','id','title','image','created_on','doodlr', 'number_of_comments']
+        fields=['url','id','title','image','created_on','doodlr', 'number_of_comments', 'yeahs']
 
     def get_doodler(self, object):
         return object.doodlr.username
@@ -83,6 +85,11 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
         comments=Comment.objects.filter(post=object.id).count()
         return comments
     
+    def get_yeahs(self, object):
+        yeahs=Yeahs.objects.filter(post_id=object.id).values("type").annotate(count=Count('type'))
+        
+        return yeahs
+
     def create(self, validated_data):
         validated_data['doodlr']=self.context['request'].user
         return super(DoodleSerializer, self).create(validated_data)
