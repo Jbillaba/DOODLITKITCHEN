@@ -86,8 +86,20 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
         return comments
     
     def get_yeahs(self, object):
-        yeahs=Yeahs.objects.filter(post_id=object.id).values("type").annotate(count=Count('type'))
-        
+        yeahs=Yeahs.objects.filter(post_id=object.id).aggregate(
+            hap=Count(
+                'type', filter=Q(type='HPY')
+            ),
+            nrm=Count(
+                'type', filter=Q(type='NRM')
+            ),
+            sad=Count(
+                'type', filter=Q(type='SAD')
+            ),
+            cfd=Count(
+                'type', filter=Q(type='CFD')
+            ),
+        )
         return yeahs
 
     def create(self, validated_data):

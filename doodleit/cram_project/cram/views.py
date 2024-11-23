@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
-from orjson import dumps
+from django.core.exceptions import ObjectDoesNotExist
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
