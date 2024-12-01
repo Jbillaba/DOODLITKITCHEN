@@ -187,10 +187,11 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 REST_KNOX = {
     'SECURE_HASH_ALGORITHM':'hashlib.sha512',
     'AUTH_TOKEN_CHARACTER_LENGTH': 64, # By default, it is set to 64 characters (this shouldn't need changing).
-    'TOKEN_TTL': timedelta(minutes=45), # The default is 10 hours i.e., timedelta(hours=10)).
+    'TOKEN_TTL': timedelta(hours=12), # The default is 10 hours i.e., timedelta(hours=10)).
     'USER_SERIALIZER': 'knox.serializers.UserSerializer',
     'TOKEN_LIMIT_PER_USER': None, # By default, this option is disabled and set to None -- thus no limit.
-    'AUTO_REFRESH': False, # This defines if the token expiry time is extended by TOKEN_TTL each time the token is used.
+    'AUTO_REFRESH': True, # This defines if the token expiry time is extended by TOKEN_TTL each time the token is used. 
+    'MIN_REFRESH_INTERVAL': 120,
     'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
 }
 
