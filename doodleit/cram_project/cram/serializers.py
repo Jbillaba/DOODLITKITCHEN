@@ -13,7 +13,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=User
-        fields=['username','email','password','password2', 'profile_picture']
+        fields=['username','email','password','password2']
     
     def validate(self, attrs):
         if attrs['password']!=attrs['password2']:
@@ -28,7 +28,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            profile_picture=validated_data['profile_picture']
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -39,7 +38,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     account_created=serializers.SerializerMethodField("get_time_since_created")
     class Meta:
         model=User
-        fields=['url','id', 'profile_picture' ,'username','email','account_created','password']
+        fields=['url','id','username','email','account_created','password']
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
@@ -73,7 +72,7 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     yeahs=serializers.SerializerMethodField("get_yeahs")
     class Meta: 
         model=Doodle
-        fields=['url','id','title','image','created_on','doodlr', 'number_of_comments', 'yeahs']
+        fields=['url','id','title','image','created_on','doodlr','number_of_comments','yeahs']
 
     def get_doodler(self, object):
         return object.doodlr.username
