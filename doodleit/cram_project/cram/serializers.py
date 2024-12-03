@@ -38,7 +38,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     account_created=serializers.SerializerMethodField("get_time_since_created")
     class Meta:
         model=User
-        fields=['url','id','username','email','account_created','password']
+        fields=['url','id','username','email','account_created']
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)

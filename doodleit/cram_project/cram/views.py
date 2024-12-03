@@ -31,6 +31,16 @@ class DoodleViewSet(viewsets.ModelViewSet):
     ordering_fields=['created_on']
     search_fields=['doodlr___username']
 
+class CurrentUser(views.APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self, request, format=None):
+        user=User.objects.filter(username=request.user)
+        serializer_context={
+            'request': request,
+        }
+        data=UserSerializer(user, context=serializer_context, many=True).data
+        return Response(data)
+
 class CurrentUserDoodleList(views.APIView):
     permission_classes=(IsAuthenticated,)
 
