@@ -34,11 +34,11 @@ class DoodleViewSet(viewsets.ModelViewSet):
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request, format=None):
-        user=User.objects.filter(username=request.user)
+        user=User.objects.get(username=request.user)
         serializer_context={
             'request': request,
         }
-        data=UserSerializer(user, context=serializer_context, many=True).data
+        data=UserSerializer(user, context=serializer_context).data
         return Response(data)
 
 class CommentViewSet(viewsets.ModelViewSet):
