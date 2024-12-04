@@ -41,18 +41,6 @@ class CurrentUser(views.APIView):
         data=UserSerializer(user, context=serializer_context, many=True).data
         return Response(data)
 
-class CurrentUserDoodleList(views.APIView):
-    permission_classes=(IsAuthenticated,)
-
-    def get(self, request, format=None):
-        doodles=Doodle.objects.filter(doodlr=request.user.id)
-        serializer_context={
-            'request': request,
-        }
-        data=DoodleSerializer(doodles, context=serializer_context, many=True).data
-        return Response(data)
-    
-
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
     serializer_class=CommentSerializer
