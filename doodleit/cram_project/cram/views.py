@@ -29,7 +29,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
     parser_classes=(MultiPartParser,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['created_on']
-    search_fields=['doodlr___username']
+    search_fields=['doodlr__username']
 
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
