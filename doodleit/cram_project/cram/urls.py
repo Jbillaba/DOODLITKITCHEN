@@ -13,6 +13,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('rest_framework.urls')),
     path('current_user/', views.CurrentUser.as_view(), name='current_user'),
+    path('current_doodles/', views.CurrentUserDoodles.as_view(), name='current_doodles'),
     path('register/', views.RegisterView.as_view(), name='register_view'),
     path('login/', views.LoginView.as_view(), name='knox_login'),
     path('logout/', views.LogoutView.as_view(), name='knox_logout'),
