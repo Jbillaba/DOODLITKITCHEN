@@ -36,9 +36,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     account_created=serializers.SerializerMethodField("get_time_since_created")
+    num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
     class Meta:
         model=User
-        fields=['url','id','username','email','account_created']
+        fields=['url','id','username','email','account_created', 'num_of_doodles']
+
+    def get_num_of_doodles(self, object):
+        doodles=Doodle.objects.filter(doodlr=object.id).count()
+        return doodles
+
     
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
