@@ -8,6 +8,7 @@ router.register(r'users', views.UserViewSet)
 router.register(r'doodles', views.DoodleViewSet)
 router.register(r'comments', views.CommentViewSet)
 router.register(r'yeahs', views.YeahViewSet)
+router.register(r'userFollows', views.UserFollowsViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),

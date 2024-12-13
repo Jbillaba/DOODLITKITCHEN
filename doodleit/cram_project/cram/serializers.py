@@ -1,4 +1,4 @@
-from .models import User, Doodle, Comment, Yeahs
+from .models import User, Doodle, Comment, Yeahs, UserFollows
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -127,6 +127,15 @@ class YeahSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         validated_data['liker']=self.context['request'].user
         return super(YeahSerializer, self).create(validated_data)
+
+class FollowsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta: 
+        model=UserFollows
+        fields=['user_id', 'following_user_id']
+
+    def create(self, validated_data):
+        validated_data['user_id']=self.context['request'].user
+        return super(FollowsSerializer, self).create(validated_data)
 
 class LoginSerializer(serializers.Serializer):
     username=serializers.CharField()

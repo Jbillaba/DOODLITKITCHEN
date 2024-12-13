@@ -45,4 +45,7 @@ class Yeahs(models.Model):
 
     def __str__(self):
         return self.type
+class UserFollows(models.Model):
+    user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    following_user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
 

@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .models import User, Doodle, Comment, Yeahs
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer
+from .models import User, Doodle, Comment, Yeahs, UserFollows
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -21,15 +21,6 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['username']
     search_fields=['username']
-
-class DoodleViewSet(viewsets.ModelViewSet):
-    queryset=Doodle.objects.all()
-    serializer_class=DoodleSerializer
-    permission_classes=(IsAuthenticatedOrReadOnly,)
-    parser_classes=(MultiPartParser,)
-    filter_backends=[filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields=['created_on']
-    search_fields=['doodlr__username']
 
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
@@ -50,6 +41,23 @@ class CurrentUserDoodles(views.APIView):
         }
         data=DoodleSerializer(doodles, context=serializer_context, many=True).data
         return Response(data)
+
+class UserFollowsViewSet(viewsets.ModelViewSet):
+    queryset=UserFollows.objects.all()
+    serializer_class=FollowsSerializer
+    permission_classes=(IsAuthenticatedOrReadOnly,)
+    filter_backends=[filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields=['user_id']
+    search_fields=['user_id']
+
+class DoodleViewSet(viewsets.ModelViewSet):
+    queryset=Doodle.objects.all()
+    serializer_class=DoodleSerializer
+    permission_classes=(IsAuthenticatedOrReadOnly,)
+    parser_classes=(MultiPartParser,)
+    filter_backends=[filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields=['created_on']
+    search_fields=['doodlr__username']
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
