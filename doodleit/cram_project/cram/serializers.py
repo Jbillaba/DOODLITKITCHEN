@@ -37,17 +37,21 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     account_created=serializers.SerializerMethodField("get_time_since_created")
     num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
+    num_of_follows=serializers.SerializerMethodField("get_num_of_follows")
     class Meta:
         model=User
-        fields=['url','id','username','email','account_created', 'num_of_doodles']
+        fields=['url','id','username','email','account_created', 'num_of_doodles', 'num_of_follows']
 
     def get_num_of_doodles(self, object):
         doodles=Doodle.objects.filter(doodlr=object.id).count()
         return doodles
 
-    
     def get_time_since_created(self, object):
         return naturaltime(object.created_on)
+
+    def get_num_of_follows(self, object):
+        follows=UserFollows.objects.filter(user_id=object.id).count()
+        return follows
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
@@ -131,7 +135,7 @@ class YeahSerializer(serializers.HyperlinkedModelSerializer):
 class FollowsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta: 
         model=UserFollows
-        fields=['user_id', 'following_user_id']
+        fields=['id', 'user_id', 'following_user_id']
 
     def create(self, validated_data):
         validated_data['user_id']=self.context['request'].user

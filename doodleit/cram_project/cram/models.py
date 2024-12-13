@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import UniqueConstraint, CheckConstraint
 from django.contrib.auth.models import AbstractUser
 from django.utils import timesince
 
@@ -45,7 +46,12 @@ class Yeahs(models.Model):
 
     def __str__(self):
         return self.type
+
 class UserFollows(models.Model):
     user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
     following_user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
-
+    
+    class Meta: constraints=[
+                UniqueConstraint(fields=['user_id', 'following_user_id'], name='unique_following'),
+                CheckConstraint(check=~models.Q(user_id=models.F('following_user_id')), name='cannot_follow_self')
+            ]
