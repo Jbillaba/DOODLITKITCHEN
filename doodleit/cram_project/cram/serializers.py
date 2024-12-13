@@ -133,9 +133,17 @@ class YeahSerializer(serializers.HyperlinkedModelSerializer):
         return super(YeahSerializer, self).create(validated_data)
 
 class FollowsSerializer(serializers.HyperlinkedModelSerializer):
+    user_id=serializers.SerializerMethodField("get_username")
+    following_user=serializers.SerializerMethodField("get_following_username") 
     class Meta: 
         model=UserFollows
-        fields=['id', 'user_id', 'following_user_id']
+        fields=['url', 'id', 'user_id', 'following_user_id', 'following_user']
+
+    def get_username(self, object):
+        return object.user_id.username
+
+    def get_following_username(self, object):
+        return object.following_user_id.username
 
     def create(self, validated_data):
         validated_data['user_id']=self.context['request'].user
