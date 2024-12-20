@@ -54,8 +54,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return naturaltime(object.created_on)
 
     def get_num_of_following(self, object):
-        follows=UserFollows.objects.filter(user_id=object.id).count()
-        return follows
+        following=UserFollows.objects.filter(user_id=object.id).count()
+        return following
 
     def get_num_of_followers(self, object):
         follows=UserFollows.objects.filter(following_user_id=object.id).count()
@@ -145,7 +145,7 @@ class FollowsSerializer(serializers.HyperlinkedModelSerializer):
     following_user=serializers.SerializerMethodField("get_following_username") 
     class Meta: 
         model=UserFollows
-        fields=[ 'id', 'user_id', 'following_user_id', 'following_user']
+        fields=['url', 'id', 'user_id', 'following_user_id', 'following_user']
 
     def get_username(self, object):
         return object.user_id.username

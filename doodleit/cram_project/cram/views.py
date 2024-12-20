@@ -48,9 +48,9 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
     serializer_class=FollowsSerializer
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
-    ordering_fields=['user__id']
+    ordering_fields=['user_id']
     search_fields=['user_id']
-
+    
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
     serializer_class=DoodleSerializer
