@@ -49,7 +49,7 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['user__id']
-    search_fields=['user_id__id']
+    search_fields=['user_id']
 
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()

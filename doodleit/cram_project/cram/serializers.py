@@ -42,7 +42,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=User
         fields=['url','id','username','email','account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers']
-        lookup_field='username'
         extra_kwargs={
                 'url': {'lookup_field': 'username'}
         }
@@ -141,12 +140,12 @@ class YeahSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['liker']=self.context['request'].user
         return super(YeahSerializer, self).create(validated_data)
 
-class FollowsSerializer(serializers.HyperlinkedModelSerializer):
+class FollowsSerializer(serializers.HyperlinkedModelSerializer): 
     user_id=serializers.SerializerMethodField("get_username")
     following_user=serializers.SerializerMethodField("get_following_username") 
     class Meta: 
         model=UserFollows
-        fields=['url', 'id', 'user_id', 'following_user_id', 'following_user']
+        fields=[ 'id', 'user_id', 'following_user_id', 'following_user']
 
     def get_username(self, object):
         return object.user_id.username
