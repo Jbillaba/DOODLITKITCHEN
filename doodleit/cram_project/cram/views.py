@@ -51,6 +51,7 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
     ordering_fields=['user_id']
     search_fields=['user_id']
     
+    
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
     serializer_class=DoodleSerializer
