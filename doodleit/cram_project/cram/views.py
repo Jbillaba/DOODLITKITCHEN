@@ -22,7 +22,6 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields=['username']
     search_fields=['username']
 
-
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request, format=None):
@@ -59,7 +58,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
     parser_classes=(MultiPartParser,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['created_on']
-    search_fields=['doodlr__username']
+    search_fields=['doodlr__id']
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()

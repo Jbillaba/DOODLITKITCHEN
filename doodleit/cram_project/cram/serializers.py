@@ -81,13 +81,16 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
-    doodlr=serializers.SerializerMethodField("get_doodler")
+    doodlr=serializers.SerializerMethodField('get_doodlr_id')
+    doodlr_username=serializers.SerializerMethodField("get_doodler")
     created_on=serializers.SerializerMethodField("get_timesince")
     number_of_comments=serializers.SerializerMethodField("get_number_of_comments")
     yeahs=serializers.SerializerMethodField("get_yeahs")
     class Meta: 
         model=Doodle
-        fields=['url','id','title','image','created_on','doodlr','number_of_comments','yeahs']
+        fields=['url','id','title','image','created_on', 'doodlr' ,'doodlr_username','number_of_comments','yeahs']
+    def get_doodlr_id(self, object):
+        return object.doodlr.id
 
     def get_doodler(self, object):
         return object.doodlr.username
