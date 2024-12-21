@@ -42,9 +42,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=User
         fields=['url','id','username','email','account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers']
-        extra_kwargs={
-                'url': {'lookup_field': 'username'}
-        }
 
     def get_num_of_doodles(self, object):
         doodles=Doodle.objects.filter(doodlr=object.id).count()
