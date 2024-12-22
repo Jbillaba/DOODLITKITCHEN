@@ -104,3 +104,8 @@ class LogoutView(views.APIView):
         response=Response({'details':'bye bye'})
         response.delete_cookie('token')
         return response
+
+class isLoggedInView(views.APIView):
+    permission_classes=(IsAuthenticated,)
+    def get(self, req, format=None):
+        return Response("Youre logged in" )

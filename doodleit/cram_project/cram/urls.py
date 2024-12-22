@@ -13,6 +13,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api/', include('rest_framework.urls')), 
+    path('logged_in/', views.isLoggedInView.as_view(), name='check_auth'),
     path('current_user/', views.CurrentUser.as_view(), name='current_user'),
     path('current_doodles/', views.CurrentUserDoodles.as_view(), name='current_doodles'),
     path('register/', views.RegisterView.as_view(), name='register_view'),
