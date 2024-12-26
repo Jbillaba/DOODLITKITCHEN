@@ -145,8 +145,7 @@ class FollowsSerializer(serializers.HyperlinkedModelSerializer):
     following_user=serializers.SerializerMethodField("get_following_username") 
     class Meta: 
         model=UserFollows
-        fields=['url', 'id', 'user_id', 'following_user_id', 'following_user']
-        
+        fields=['url', 'id', 'user_id', 'following_user_id', 'following_user'] 
 
     def get_username(self, object):
         return object.user_id.username

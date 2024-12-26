@@ -8,4 +8,4 @@ class AuthFromCookie(TokenAuthentication):
             return None
         request.META['HTTP_AUTHORIZATION']=f'Token {knox_token}'
         return super().authenticate(request)
- 
+    

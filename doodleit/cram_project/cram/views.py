@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
 from django.core.exceptions import ObjectDoesNotExist
+import datetime
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -48,8 +49,12 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
     permission_classes=(IsAuthenticatedOrReadOnly,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['user_id']
-    search_fields=['user_id']
-    
+
+class UserFollowingViewSet(UserFollowsViewSet):
+    search_fields=['user_id__id']
+
+class UserFollowersViewSet(UserFollowsViewSet):
+    search_fields=['following_user_id__id']
     
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
@@ -92,6 +97,7 @@ class LoginView(KnoxLoginView):
         response.set_cookie(
             'token',
             token,
+            expires=datetime.datetime.utcnow() + datetime.timedelta(days=6),
             httponly=True,
             samesite='None',
             secure=True,
@@ -108,4 +114,4 @@ class LogoutView(views.APIView):
 class isLoggedInView(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, req, format=None):
-        return Response("Youre logged in" )
+        return Response("logged in")
