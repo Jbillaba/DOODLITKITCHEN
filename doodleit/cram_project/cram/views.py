@@ -55,6 +55,11 @@ class UserFollowingViewSet(UserFollowsViewSet):
 
 class UserFollowersViewSet(UserFollowsViewSet):
     search_fields=['following_user_id__id']
+
+class UserInFollowingViewSet(UserFollowsViewSet):
+    def get(self, request, format=None):
+        queryset=UserFollows.objects.filter(following_id=request.user)
+        return Response("True")
     
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
