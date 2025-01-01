@@ -50,11 +50,23 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['user_id']
 
+
 class UserFollowingViewSet(UserFollowsViewSet):
     search_fields=['user_id__id']
 
 class UserFollowersViewSet(UserFollowsViewSet):
     search_fields=['following_user_id__id']
+
+class UserInFollowsView(views.APIView):
+    permission_classes=(IsAuthenticated,) 
+    def get(self, request, following_id):
+        user=self.request.user
+        target=self.kwargs['following_id']
+        try:
+            follow=UserFollows.objects.get(user_id=user, following_user_id_id=target)
+            return Response("is following")
+        except ObjectDoesNotExist:
+            return Response("not following")
         
 
 class DoodleViewSet(viewsets.ModelViewSet):
