@@ -12,7 +12,8 @@ router.register(r'userFollows', views.UserFollowsViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api/', include('rest_framework.urls')), 
+    path('api/', include('rest_framework.urls')),
+    path('search/<str:query>/', views.GlobalSearchView.as_view(), name='search-list'),
     path('logged_in/', views.isLoggedInView.as_view(), name='check_auth-detail'),
     path('current_user/', views.CurrentUser.as_view(), name='current_user-detail'),
     path('current_doodles/', views.CurrentUserDoodles.as_view(), name='current_doodles-list'),

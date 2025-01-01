@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
 from django.core.exceptions import ObjectDoesNotExist
+from itertools import chain
 import datetime
 
 class RegisterView(generics.CreateAPIView):
@@ -59,6 +60,7 @@ class UserFollowersViewSet(UserFollowsViewSet):
 
 class UserInFollowsView(views.APIView):
     permission_classes=(IsAuthenticated,) 
+
     def get(self, request, following_id):
         user=self.request.user
         target=self.kwargs['following_id']
@@ -128,3 +130,16 @@ class isLoggedInView(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, req, format=None):
         return Response("logged in")
+
+class GlobalSearchView(views.APIView):
+    permission_classes=(IsAuthenticatedOrReadOnly,)
+
+    def get(self, request, query):
+        search=self.kwargs['query']
+        try: 
+            doodles=Doodle.objects.filter(title=query)
+            user=User.objects.filter(username=query)
+            result_list=list(chain(doodles, user))
+            return Response(result_list)
+        except ObjectDoesNotExist:
+            return Response("search does not match anything")
