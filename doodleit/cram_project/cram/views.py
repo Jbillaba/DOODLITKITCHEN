@@ -1,5 +1,6 @@
-from rest_framework import viewsets, generics, filters, views, status
+from rest_framework import viewsets, generics, filters, views
 from django.contrib.auth import login, logout
+from django.http import JsonResponse
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment, Yeahs, UserFollows
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer
@@ -65,7 +66,7 @@ class UserInFollowsView(views.APIView):
         user=self.request.user
         target=self.kwargs['following_id']
         try:
-            follow=UserFollows.objects.get(user_id=user, following_user_id_id=target)
+            UserFollows.objects.get(user_id=user, following_user_id_id=target)
             return Response("is following")
         except ObjectDoesNotExist:
             return Response("not following")
@@ -112,7 +113,7 @@ class LoginView(KnoxLoginView):
         response.set_cookie(
             'token',
             token,
-            expires=datetime.datetime.utcnow() + datetime.timedelta(days=6),
+            expires=datetime.datetime.now() + datetime.timedelta(days=6),
             httponly=True,
             samesite='None',
             secure=True,
@@ -131,15 +132,22 @@ class isLoggedInView(views.APIView):
     def get(self, req, format=None):
         return Response("logged in")
 
-class GlobalSearchView(views.APIView):
+class SearchView(views.APIView):
     permission_classes=(IsAuthenticatedOrReadOnly,)
 
     def get(self, request, query):
         search=self.kwargs['query']
+        serializer_context={
+            'request': request,
+        }
         try: 
-            doodles=Doodle.objects.filter(title=query)
-            user=User.objects.filter(username=query)
-            result_list=list(chain(doodles, user))
+            doodles=Doodle.objects.filter(title__contains=search)
+            doodleSerializer=DoodleSerializer(doodles, context=serializer_context, many=True).data
+
+            users=User.objects.filter(username__contains=search)
+            userSerializer=UserSerializer(users, context=serializer_context, many=True ).data
+            
+            result_list=chain(doodleSerializer, userSerializer)
             return Response(result_list)
         except ObjectDoesNotExist:
             return Response("search does not match anything")
