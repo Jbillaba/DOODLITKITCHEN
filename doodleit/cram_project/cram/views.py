@@ -147,7 +147,7 @@ class SearchView(views.APIView):
             users=User.objects.filter(username__contains=search)
             userSerializer=UserSerializer(users, context=serializer_context, many=True ).data
             
-            result_list=chain(doodleSerializer, userSerializer)
+            result_list=chain(userSerializer, doodleSerializer)
             return Response(result_list)
         except ObjectDoesNotExist:
             return Response("search does not match anything")
