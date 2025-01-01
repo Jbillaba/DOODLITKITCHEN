@@ -18,7 +18,6 @@ urlpatterns = [
     path('current_doodles/', views.CurrentUserDoodles.as_view(), name='current_doodles-list'),
     path('user_following/', views.UserFollowingViewSet.as_view({'get':'list'}), name='user_following-list'),
     path('user_followers/', views.UserFollowersViewSet.as_view({'get':'list'}), name='user_followers-list'),
-    path('user_in_following/', views.UserInFollowingViewSet.as_view({'get':'detail'}), name='user_in_following-detail'),
     path('register/', views.RegisterView.as_view(), name='register_view'),
     path('login/', views.LoginView.as_view(), name='knox_login'),
     path('logout/', views.LogoutView.as_view(), name='knox_logout'),
