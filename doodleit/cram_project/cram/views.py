@@ -1,6 +1,5 @@
 from rest_framework import viewsets, generics, filters, views
 from django.contrib.auth import login, logout
-from django.http import JsonResponse
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment, Yeahs, UserFollows
 from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer
@@ -8,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, FieldError
 from itertools import chain
 import datetime
 
@@ -67,10 +66,10 @@ class UserInFollowsView(views.APIView):
         target=self.kwargs['following_id']
         try:
             UserFollows.objects.get(user_id=user, following_user_id_id=target)
-            return Response("is following")
+            return Response(True)
         except ObjectDoesNotExist:
-            return Response("not following")
-        
+            return Response(False)
+       
 
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
