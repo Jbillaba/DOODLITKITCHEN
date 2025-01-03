@@ -1,4 +1,4 @@
-from rest_framework import viewsets, generics, filters, views
+from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment, Yeahs, UserFollows
@@ -79,6 +79,35 @@ class DoodleViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['created_on']
     search_fields=['doodlr__id']
+
+    def destroy(self, request, *args, **kwargs):
+        doodle=self.get_object()
+        if doodle.doodlr != self.request.user:
+            return Response("not the owner"  ,status.HTTP_403_FORBIDDEN)
+        doodle.delete()
+        return Response("deleted", status=status.HTTP_202_ACCEPTED)
+    
+    def partial_update(self, request, *args, **kwargs):
+        doodle=self.get_object()
+        if doodle.doodlr != self.request.user:
+            return Response("not the owner", status.HTTP_403_FORBIDDEN)
+        serializer=DoodleSerializer(doodle, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("partial updated", status=status.HTTP_202_ACCEPTED)
+
+    
+    def update(self, request, *args, **kwargs):
+        doodle=self.get_object()
+        if doodle.doodlr != self.request.user:
+            return Response("not the owner", status=status.HTTP_403_FORBIDDEN)
+        serializer=DoodleSerializer(doodle, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("updated", status=status.HTTP_202_ACCEPTED)
+    
+
+        
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
