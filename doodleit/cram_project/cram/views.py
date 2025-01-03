@@ -117,6 +117,22 @@ class CommentViewSet(viewsets.ModelViewSet):
     ordering_fields=['created_on']
     search_fields=['post__id']
 
+    def destroy(self, request, *args, **kwargs):
+        comment=self.get_object()
+        if comment.author != self.request.user:
+            return Response("not the author", status=status.HTTP_403_FORBIDDEN)
+        comment.delete()
+        return Response("comment deleted", status=status.HTTP_202_ACCEPTED)
+    
+    def update(self, request, *args, **kwargs):
+        comment=self.get_object()
+        if comment.author != self.request.user:
+            return Response("not the author", status=status.HTTP_403_FORBIDDEN)
+        serializer=CommentSerializer(comment, data=request.data, partial=True)
+        serializer.is_valid()
+        serializer.save()
+        return Response("comment edited", status=status.HTTP_202_ACCEPTED)
+
 class YeahViewSet(viewsets.ModelViewSet):
     queryset=Yeahs.objects.all()
     serializer_class=YeahSerializer
