@@ -105,10 +105,6 @@ class DoodleViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response("updated", status=status.HTTP_202_ACCEPTED)
-    
-
-        
-
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
     serializer_class=CommentSerializer
@@ -154,6 +150,13 @@ class LoginView(KnoxLoginView):
     
         token=response.data['token']
         del response.data['token']
+        
+        response.set_cookie(
+            'uid',
+            user.id,
+            samesite='None',
+            secure=True
+        )
         response.set_cookie(
             'token',
             token,
@@ -168,6 +171,7 @@ class LogoutView(views.APIView):
     def post(self, req, format=None):
         logout(req)
         response=Response({'details':'bye bye'})
+        response.delete_cookie('uid')
         response.delete_cookie('token')
         return response
 
