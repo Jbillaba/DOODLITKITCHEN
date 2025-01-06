@@ -196,3 +196,6 @@ class ChangePasswordSerializer(serializers.Serializer):
                 {'passwords': 'passwords didnt match'}
             )
         return attrs
+    
+class DeleteAccountSerializer(serializers.Serializer):
+    password=serializers.CharField(required=True)

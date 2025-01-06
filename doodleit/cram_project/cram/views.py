@@ -2,7 +2,7 @@ from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment, Yeahs, UserFollows
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -222,7 +222,7 @@ class ChangePasswordView(views.APIView):
         serializer=ChangePasswordSerializer(data=request.data)
 
         if serializer.is_valid():
-            old_password=serializer.data.get("old_password")
+            old_password=serializer.data.get('old_password')
             if not self.object.check_password(old_password):
                 return Response({'old_password': ['wrong password.']}, status=status.HTTP_400_BAD_REQUEST)
             self.object.set_password(serializer.data.get('new_password'))
@@ -236,3 +236,31 @@ class ChangePasswordView(views.APIView):
 
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class DeleteAccountView(views.APIView):
+    serializer=DeleteAccountSerializer
+    model=User
+    permission_classes=(IsAuthenticated,)
+    
+    def get_object(self):
+        return self.request.user
+
+    def post(self, request):
+        self.object=self.get_object()
+        serializer=DeleteAccountSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            password=serializer.data.get('password')
+            if not self.object.check_password(password):
+                return Response({'password': ['wrong password.']}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.delete()
+            response={
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'account deleted succesfully',
+                'data': []
+            }
+
+            return Response(response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

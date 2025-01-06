@@ -24,4 +24,5 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='knox_login'),
     path('logout/', views.LogoutView.as_view(), name='knox_logout'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
+    path('delete_account/', views.DeleteAccountView.as_view(), name='delete_account'),
 ]
