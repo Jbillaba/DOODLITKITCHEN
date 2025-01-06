@@ -166,8 +166,8 @@ class FollowsSerializer(serializers.HyperlinkedModelSerializer):
         return super(FollowsSerializer, self).create(validated_data)
 
 class LoginSerializer(serializers.Serializer):
-    username=serializers.CharField()
-    password=serializers.CharField()
+    username=serializers.CharField(required=True)
+    password=serializers.CharField(required=True)
 
     def validate(self, attrs):
         username=attrs.get('username')
@@ -185,3 +185,14 @@ class LoginSerializer(serializers.Serializer):
         attrs['user']=user
         return attrs
         
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password=serializers.CharField(required=True)
+    new_password=serializers.CharField(required=True, validators=[validate_password])
+    confirm_new_password=serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password']:
+            raise serializers.ValidationError(
+                {'passwords': 'passwords didnt match'}
+            )
+        return attrs

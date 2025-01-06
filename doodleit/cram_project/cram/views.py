@@ -2,12 +2,12 @@ from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment, Yeahs, UserFollows
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
-from django.core.exceptions import ObjectDoesNotExist, FieldError
+from django.core.exceptions import ObjectDoesNotExist
 from itertools import chain
 import datetime
 
@@ -208,3 +208,31 @@ class SearchView(views.APIView):
             return Response(result_list)
         except ObjectDoesNotExist:
             return Response("search does not match anything")
+
+class ChangePasswordView(views.APIView):
+    serializer=ChangePasswordSerializer
+    model=User
+    permission_classes=(IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user
+    
+    def put(self, request):
+        self.object=self.get_object()
+        serializer=ChangePasswordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            old_password=serializer.data.get("old_password")
+            if not self.object.check_password(old_password):
+                return Response({'old_password': ['wrong password.']}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.set_password(serializer.data.get('new_password'))
+            self.object.save()
+            response={
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+
+            return Response(response)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
