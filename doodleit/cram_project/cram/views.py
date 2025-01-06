@@ -24,6 +24,15 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields=['username']
     search_fields=['username']
 
+    def partial_update(self, request, *args, **kwargs):
+        user=self.get_object()
+        if user != self.request.user:
+            return Response("Not Allowed", status=status.HTTP_403_FORBIDDEN)
+        serializer=UserSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("changes to profile made", status=status.HTTP_202_ACCEPTED)
+
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request, format=None):
@@ -94,8 +103,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
         serializer=DoodleSerializer(doodle, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response("partial updated", status=status.HTTP_202_ACCEPTED)
-
+        return Response("doodle edited", status=status.HTTP_202_ACCEPTED)
     
     def update(self, request, *args, **kwargs):
         doodle=self.get_object()
@@ -105,6 +113,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response("updated", status=status.HTTP_202_ACCEPTED)
+    
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
     serializer_class=CommentSerializer
