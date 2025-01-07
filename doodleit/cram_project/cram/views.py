@@ -60,6 +60,14 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['user_id']
 
+    def destroy(self, request, *args, **kwargs):
+        follow=self.get_object()
+        if follow.user_id != self.request.user:
+            return Response("not allowed", status.HTTP_403_FORBIDDEN)
+        follow.delete()
+        return Response("unfollowed", status=status.HTTP_200_OK)
+        
+
 
 class UserFollowingViewSet(UserFollowsViewSet):
     search_fields=['user_id__id']
@@ -74,8 +82,12 @@ class UserInFollowsView(views.APIView):
         user=self.request.user
         target=self.kwargs['following_id']
         try:
-            UserFollows.objects.get(user_id=user, following_user_id_id=target)
-            return Response(True)
+            follow=UserFollows.objects.get(user_id=user, following_user_id_id=target)
+            serializer_context={
+            'request': request,
+            }
+            serializer=FollowsSerializer(follow, context=serializer_context).data
+            return Response(serializer, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(False)
        
@@ -262,5 +274,6 @@ class DeleteAccountView(views.APIView):
             }
 
             return Response(response)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        )
     
