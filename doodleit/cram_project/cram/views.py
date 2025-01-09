@@ -24,15 +24,6 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields=['username']
     search_fields=['username']
 
-    def partial_update(self, request, *args, **kwargs):
-        user=self.get_object()
-        if user != self.request.user:
-            return Response("Not Allowed", status=status.HTTP_403_FORBIDDEN)
-        serializer=UserSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response("changes to profile made", status=status.HTTP_202_ACCEPTED)
-
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request, format=None):
@@ -42,6 +33,18 @@ class CurrentUser(views.APIView):
         }
         data=UserSerializer(user, context=serializer_context).data
         return Response(data)
+    
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        user=self.get_object()
+        if user != self.request.user:
+            return Response("Not Allowed", status=status.HTTP_403_FORBIDDEN)
+        serializer=UserSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("changes to profile made", status=status.HTTP_200_OK)
 
 class CurrentUserDoodles(views.APIView):
     permission_classes=(IsAuthenticated,)
@@ -67,8 +70,6 @@ class UserFollowsViewSet(viewsets.ModelViewSet):
         follow.delete()
         return Response("unfollowed", status=status.HTTP_200_OK)
         
-
-
 class UserFollowingViewSet(UserFollowsViewSet):
     search_fields=['user_id__id']
 
@@ -89,8 +90,7 @@ class UserInFollowsView(views.APIView):
             serializer=FollowsSerializer(follow, context=serializer_context).data
             return Response(serializer, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            return Response(False)
-       
+            return Response(False, status=status.HTTP_404_NOT_FOUND)
 
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
@@ -106,7 +106,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
         if doodle.doodlr != self.request.user:
             return Response("not the owner"  ,status.HTTP_403_FORBIDDEN)
         doodle.delete()
-        return Response("deleted", status=status.HTTP_202_ACCEPTED)
+        return Response("deleted", status=status.HTTP_200_OK)
     
     def partial_update(self, request, *args, **kwargs):
         doodle=self.get_object()
@@ -115,7 +115,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
         serializer=DoodleSerializer(doodle, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response("doodle edited", status=status.HTTP_202_ACCEPTED)
+        return Response("doodle edited", status=status.HTTP_200_OK)
     
     def update(self, request, *args, **kwargs):
         doodle=self.get_object()
@@ -124,7 +124,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
         serializer=DoodleSerializer(doodle, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response("updated", status=status.HTTP_202_ACCEPTED)
+        return Response("updated", status=status.HTTP_200_OK)
     
 class CommentViewSet(viewsets.ModelViewSet):
     queryset=Comment.objects.all()
@@ -139,7 +139,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         if comment.author != self.request.user:
             return Response("not the author", status=status.HTTP_403_FORBIDDEN)
         comment.delete()
-        return Response("comment deleted", status=status.HTTP_202_ACCEPTED)
+        return Response("comment deleted", status=status.HTTP_200_OK)
     
     def update(self, request, *args, **kwargs):
         comment=self.get_object()
@@ -148,7 +148,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer=CommentSerializer(comment, data=request.data, partial=True)
         serializer.is_valid()
         serializer.save()
-        return Response("comment edited", status=status.HTTP_202_ACCEPTED)
+        return Response("comment edited", status=status.HTTP_200_OK)
 
 class YeahViewSet(viewsets.ModelViewSet):
     queryset=Yeahs.objects.all()
@@ -248,7 +248,7 @@ class ChangePasswordView(views.APIView):
 
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class DeleteAccountView(views.APIView):
     serializer=DeleteAccountSerializer
     model=User
@@ -276,4 +276,3 @@ class DeleteAccountView(views.APIView):
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
-    
