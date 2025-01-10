@@ -182,6 +182,7 @@ class LoginView(KnoxLoginView):
         response.set_cookie(
             'uid',
             user.id,
+            expires=datetime.datetime.now() + datetime.timedelta(days=6),
             samesite='None',
             secure=True
         )
@@ -205,10 +206,9 @@ class LogoutView(views.APIView):
 
 class isLoggedInView(views.APIView):
     def get(self, req, format=None):
-        if 'token' not in req.COOKIES: 
-            return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        if 'token' and 'uid' not in req.COOKIES: 
+            return Response(False, status=status.HTTP_401_UNAUTHORIZED)
         return Response(True, status=status.HTTP_200_OK)
-        
 
 class SearchView(views.APIView):
     permission_classes=(IsAuthenticatedOrReadOnly,)

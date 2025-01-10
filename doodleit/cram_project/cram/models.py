@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 from django.db.models import UniqueConstraint, CheckConstraint
 from django.contrib.auth.models import AbstractUser
 from django.utils import timesince
@@ -12,6 +13,7 @@ YEAH_CHOICES = {
 }
 
 class User(AbstractUser):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username=models.CharField(max_length=20, unique=True)
     email=models.EmailField(max_length=40, unique=True)
     password=models.CharField(max_length=128)
@@ -21,6 +23,7 @@ class User(AbstractUser):
         return self.username
 
 class Doodle(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title=models.CharField(max_length=40, default='')
     image=models.FileField()
     created_on=models.DateTimeField(auto_now_add=True)
@@ -30,6 +33,7 @@ class Doodle(models.Model):
         return self.title
 
 class Comment(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     post=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='originpost')
     author=models.ForeignKey(User, on_delete=models.CASCADE, related_name='commentauthor')
     text=models.TextField(max_length=140)
@@ -39,16 +43,18 @@ class Comment(models.Model):
         return self.text
 
 class Yeahs(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     liker=models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_user')
     post=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='liked_post')
     type=models.CharField(max_length=6, choices=YEAH_CHOICES)
     created_on=models.DateTimeField(auto_now_add=True)
     
     class Meta: constraints=[
-                UniqueConstraint(fields=['liker'], condition=models.Q(status='post'), name='unique_yeah')
+                UniqueConstraint(fields=['liker', 'post'], name='unique_yeah')
     ]
 
 class UserFollows(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
     following_user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
     
