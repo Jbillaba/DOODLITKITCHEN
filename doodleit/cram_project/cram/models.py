@@ -43,9 +43,10 @@ class Yeahs(models.Model):
     post=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='liked_post')
     type=models.CharField(max_length=6, choices=YEAH_CHOICES)
     created_on=models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.type
+    
+    class Meta: constraints=[
+                UniqueConstraint(fields=['liker'], condition=models.Q(status='post'), name='unique_yeah')
+    ]
 
 class UserFollows(models.Model):
     user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')

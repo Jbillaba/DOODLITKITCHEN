@@ -158,6 +158,13 @@ class YeahViewSet(viewsets.ModelViewSet):
     ordering_fields=['created_on']
     search_fields=['post__id']
 
+    def destroy(self, request, *args, **kwargs):
+        yeah=self.get_object()
+        if yeah.liker != self.request.user:
+            return Response("not allowed", status=status.HTTP_403_FORBIDDEN)
+        yeah.delete()
+        return Response("unliked post", status=status.HTTP_200_OK)
+
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
     permission_classes = (AllowAny,)
@@ -272,7 +279,8 @@ class DeleteAccountView(views.APIView):
                 'message': 'account deleted succesfully',
                 'data': []
             }
-
+            response.delete_cookie('uid')
+            response.delete_cookie('token')
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
