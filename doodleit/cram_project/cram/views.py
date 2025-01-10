@@ -204,9 +204,11 @@ class LogoutView(views.APIView):
         return response
 
 class isLoggedInView(views.APIView):
-    permission_classes=(IsAuthenticated,)
     def get(self, req, format=None):
-        return Response("logged in")
+        if 'token' not in req.COOKIES: 
+            return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        return Response(True, status=status.HTTP_200_OK)
+        
 
 class SearchView(views.APIView):
     permission_classes=(IsAuthenticatedOrReadOnly,)

@@ -1,5 +1,4 @@
 from knox.auth import TokenAuthentication;
-from django.http import response
 
 class AuthFromCookie(TokenAuthentication):
     def authenticate(self, request):
