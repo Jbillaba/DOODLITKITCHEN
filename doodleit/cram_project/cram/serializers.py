@@ -199,3 +199,6 @@ class ChangePasswordSerializer(serializers.Serializer):
     
 class DeleteAccountSerializer(serializers.Serializer):
     password=serializers.CharField(required=True)
+
+class OTPSerializer(serializers.Serializer):
+    token=serializers.CharField(required=True)

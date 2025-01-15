@@ -2,7 +2,7 @@ from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from .models import User, Doodle, Comment, Yeahs, UserFollows
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -10,6 +10,7 @@ from knox.views import LoginView as KnoxLoginView
 from django.core.exceptions import ObjectDoesNotExist
 from itertools import chain
 import datetime
+from cram.services import OTP
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -286,3 +287,21 @@ class DeleteAccountView(views.APIView):
             return Response(response)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
+    
+class OtpAuthenticate(views.APIView):
+    serializer=OTPSerializer
+    service=OTP()
+
+    def get(self, request, format=None):
+        otp=self.service.generate()
+        return Response(f'here is youre one time password {otp}', status=status.HTTP_200_OK)
+    
+    def post(self, request, format=None):
+        serializer=self.serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        print(request.data['token'])
+        token=request.data['token']
+        validity=self.service.verifyToken(token)
+        if validity:
+            return Response("valid", status=status.HTTP_200_OK)
+        return Response("invalid", status=status.HTTP_400_BAD_REQUEST)
