@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .models import User, Doodle, Comment, Yeahs, UserFollows
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer
+from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer, UserOtpSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -288,20 +288,35 @@ class DeleteAccountView(views.APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
     
-class OtpAuthenticate(views.APIView):
-    serializer=OTPSerializer
+class UserOtpViewSet(viewsets.ModelViewSet):
+    serializer_class=UserOtpSerializer
+    queryset=UserOtp.objects.all()
+
+
+class OtpGenerateView(views.APIView):
+    permission_classes=(IsAuthenticated,)
     service=OTP()
 
-    def get(self, request, format=None):
-        otp=self.service.generate()
-        return Response(f'here is youre one time password {otp}', status=status.HTTP_200_OK)
-    
     def post(self, request, format=None):
-        serializer=self.serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        print(request.data['token'])
-        token=request.data['token']
-        validity=self.service.verifyToken(token)
-        if validity:
-            return Response("valid", status=status.HTTP_200_OK)
-        return Response("invalid", status=status.HTTP_400_BAD_REQUEST)
+        otp=self.service.generate()
+        try:
+            UserOtp.objects.create(otp=otp, user=self.request.user)
+            return Response(f'here is youre one time password {otp}, expires in 60 seconds', status=status.HTTP_201_CREATED)
+        except:
+            return Response("something went wrong", status=status.HTTP_400_BAD_REQUEST)
+    
+class OtpAuthenticateView(OtpGenerateView):
+    permission_classes=(IsAuthenticated,)
+    def put(self, request, *args, **kwargs):
+        otp=request.data['otp']
+        otpObject=UserOtp.objects.get(otp=otp, user=request.user)
+        
+        if otpObject.user != request.user and otpObject.otp != otp:
+            return Response("incorrect credentials", status=status.HTTP_400_BAD_REQUEST)
+        
+        if self.service.verifyToken(otp):
+            serializer=UserOtpSerializer(otpObject, data={'is_valid': 'false'}, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response('valid', status=status.HTTP_200_OK)
+        return Response("invalid credentials", status=status.HTTP_400_BAD_REQUEST)

@@ -9,6 +9,7 @@ router.register(r'doodles', views.DoodleViewSet)
 router.register(r'comments', views.CommentViewSet)
 router.register(r'yeahs', views.YeahViewSet)
 router.register(r'userFollows', views.UserFollowsViewSet)
+router.register(r'userOtp', views.UserOtpViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
@@ -23,7 +24,8 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register_view'),
     path('login/', views.LoginView.as_view(), name='knox_login'),
     path('logout/', views.LogoutView.as_view(), name='knox_logout'),
-    path('authenticate/', views.OtpAuthenticate.as_view(), name='authenticate'),
+    path('token/', views.OtpGenerateView.as_view(), name='generate_token'),
+    path('authenticate/', views.OtpAuthenticateView.as_view(), name='authenticate'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
     path('delete_account/', views.DeleteAccountView.as_view(), name='delete_account'),
 ]

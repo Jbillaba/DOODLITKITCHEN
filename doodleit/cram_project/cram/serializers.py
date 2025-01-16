@@ -1,4 +1,4 @@
-from .models import User, Doodle, Comment, Yeahs, UserFollows
+from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -202,3 +202,12 @@ class DeleteAccountSerializer(serializers.Serializer):
 
 class OTPSerializer(serializers.Serializer):
     token=serializers.CharField(required=True)
+
+class UserOtpSerializer(serializers.ModelSerializer):
+    user=serializers.SerializerMethodField("get_userid")
+    class Meta:
+        model=UserOtp
+        fields=['url', 'id', 'user', 'otp', 'is_valid', 'created_on']
+
+    def get_userid(self, object):
+        return object.user.id
