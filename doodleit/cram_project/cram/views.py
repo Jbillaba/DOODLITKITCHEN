@@ -314,6 +314,11 @@ class OtpAuthenticateView(views.APIView):
         user_otp=UserOtp.objects.get(otp=otp)
         if user_otp.user != request.user:
             return Response("not owner", status=status.HTTP_400_BAD_REQUEST)
-        if self.service.verifyToken(otp):
+        try:
+            self.service.verifyToken(otp)
+            update_serializer=UserOtpSerializer(user_otp, data={"is_valid": False}, partial=True)
+            update_serializer.is_valid(raise_exception=True)
+            update_serializer.save()
             return Response('correct credentials', status=status.HTTP_200_OK)
-        return Response('incorrect credentials', status=status.HTTP_200_OK)
+        except:
+            Response('incorrect credentials', status=status.HTTP_400_BAD_REQUEST)
