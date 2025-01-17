@@ -201,9 +201,9 @@ class DeleteAccountSerializer(serializers.Serializer):
     password=serializers.CharField(required=True)
 
 class OTPSerializer(serializers.Serializer):
-    token=serializers.CharField(required=True)
+    otp=serializers.CharField(required=True)
 
-class UserOtpSerializer(serializers.ModelSerializer):
+class UserOtpSerializer(serializers.HyperlinkedModelSerializer):
     user=serializers.SerializerMethodField("get_userid")
     class Meta:
         model=UserOtp

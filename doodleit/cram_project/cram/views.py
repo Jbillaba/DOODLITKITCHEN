@@ -285,8 +285,7 @@ class DeleteAccountView(views.APIView):
             response.delete_cookie('uid')
             response.delete_cookie('token')
             return Response(response)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserOtpViewSet(viewsets.ModelViewSet):
     serializer_class=UserOtpSerializer
@@ -305,18 +304,16 @@ class OtpGenerateView(views.APIView):
         except:
             return Response("something went wrong", status=status.HTTP_400_BAD_REQUEST)
     
-class OtpAuthenticateView(OtpGenerateView):
+class OtpAuthenticateView(views.APIView):
     permission_classes=(IsAuthenticated,)
-    def put(self, request, *args, **kwargs):
-        otp=request.data['otp']
-        otpObject=UserOtp.objects.get(otp=otp, user=request.user)
-        
-        if otpObject.user != request.user and otpObject.otp != otp:
-            return Response("incorrect credentials", status=status.HTTP_400_BAD_REQUEST)
-        
+    service=OTP()
+    def patch(self, request, *args, **kwargs):
+        serializer=OTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        otp=serializer.data.get('otp')
+        user_otp=UserOtp.objects.get(otp=otp)
+        if user_otp.user != request.user:
+            return Response("not owner", status=status.HTTP_400_BAD_REQUEST)
         if self.service.verifyToken(otp):
-            serializer=UserOtpSerializer(otpObject, data={'is_valid': 'false'}, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response('valid', status=status.HTTP_200_OK)
-        return Response("invalid credentials", status=status.HTTP_400_BAD_REQUEST)
+            return Response('correct credentials', status=status.HTTP_200_OK)
+        return Response('incorrect credentials', status=status.HTTP_200_OK)
