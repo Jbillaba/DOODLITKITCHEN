@@ -12,6 +12,7 @@ class OTP():
     
     def generate(self):
         otp=self.totp.now()
+        Emails.send_otp(otp)
         return otp
     
     def verifyToken(self, otp):
@@ -20,11 +21,12 @@ class OTP():
 
 
 class Emails():
-    def usernameChanged():
-        email=send_mail(
-            'change in account details',
-            'youre username has been changed',
+    def send_otp(otp):
+        send_mail(
+            'user verification',
+            f'here is your One-time password {otp}',
             'noreply@doodlr.com',
-            'example@example.com'
+            ['example@example.com'],
+            fail_silently=False
         )
-        return email
+        return send_mail

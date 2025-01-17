@@ -10,7 +10,9 @@ from knox.views import LoginView as KnoxLoginView
 from django.core.exceptions import ObjectDoesNotExist
 from itertools import chain
 import datetime
-from cram.services import OTP
+from cram.services import OTP, Emails
+
+Email=Emails()
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -300,7 +302,7 @@ class OtpGenerateView(views.APIView):
         otp=self.service.generate()
         try:
             UserOtp.objects.create(otp=otp, user=self.request.user)
-            return Response(f'here is youre one time password {otp}, expires in 60 seconds', status=status.HTTP_201_CREATED)
+            return Response("otp sent to email",status=status.HTTP_200_OK)
         except:
             return Response("something went wrong", status=status.HTTP_400_BAD_REQUEST)
     
@@ -312,8 +314,8 @@ class OtpAuthenticateView(views.APIView):
         serializer.is_valid(raise_exception=True)
         otp=serializer.data.get('otp')
         user_otp=UserOtp.objects.get(otp=otp)
-        if user_otp.user != request.user:
-            return Response("not owner", status=status.HTTP_400_BAD_REQUEST)
+        if user_otp.user != request.user or user_otp.is_valid != True:
+            return Response("incorrect credentials", status=status.HTTP_400_BAD_REQUEST)
         try:
             self.service.verifyToken(otp)
             update_serializer=UserOtpSerializer(user_otp, data={"is_valid": False}, partial=True)
