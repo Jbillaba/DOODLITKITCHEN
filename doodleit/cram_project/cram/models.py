@@ -18,6 +18,8 @@ class User(AbstractUser):
     email=models.EmailField(max_length=40, unique=True)
     password=models.CharField(max_length=128)
     created_on=models.DateTimeField(auto_now_add=True)
+    bio=models.CharField(max_length=60, default='', blank=True, null=True)
+    pinned_doodle=models.ForeignKey('Doodle', on_delete=models.CASCADE, related_name='pinned_doodle', blank=True, null=True)
     
     def __str__(self):
         return self.username

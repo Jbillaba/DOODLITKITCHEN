@@ -41,7 +41,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     num_of_followers=serializers.SerializerMethodField("get_num_of_followers")
     class Meta:
         model=User
-        fields=['url','id','username','email','account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers']
+        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle']
 
     def get_num_of_doodles(self, object):
         doodles=Doodle.objects.filter(doodlr=object.id).count()
