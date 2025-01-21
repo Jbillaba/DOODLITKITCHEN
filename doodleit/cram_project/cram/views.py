@@ -210,6 +210,8 @@ class LogoutView(views.APIView):
 class isLoggedInView(views.APIView):
     def get(self, req, format=None):
         if 'token' and 'uid' not in req.COOKIES: 
+            if 'uid' != req.user.id:
+                return Response(False, status=status.HTTP_400_BAD_REQUEST)
             return Response(False, status=status.HTTP_401_UNAUTHORIZED)
         return Response(True, status=status.HTTP_200_OK)
 
@@ -272,6 +274,10 @@ class DeleteAccountView(views.APIView):
     def post(self, request):
         self.object=self.get_object()
         serializer=DeleteAccountSerializer(data=request.data)
+        token = request.COOKIES.get('ACP')
+        
+        if token != request.user.id:
+            return Response(status=status.HTTP_400_BAD_REQUEST) 
         
         if serializer.is_valid():
             password=serializer.data.get('password')
@@ -321,6 +327,14 @@ class OtpAuthenticateView(views.APIView):
             update_serializer=UserOtpSerializer(user_otp, data={"is_valid": False}, partial=True)
             update_serializer.is_valid(raise_exception=True)
             update_serializer.save()
-            return Response('correct credentials', status=status.HTTP_200_OK)
+            response = Response("correct credentials", status=status.HTTP_200_OK)
+            response.set_cookie(
+                'ACP',
+                request.user.id,
+                expires=datetime.datetime.now() + datetime.timedelta(minutes=15),
+                samesite='None',
+                secure=True
+            )
+            return response
         except:
             Response('incorrect credentials', status=status.HTTP_400_BAD_REQUEST)
