@@ -42,6 +42,10 @@ class CurrentUser(views.APIView):
 
     def patch(self, request, *args, **kwargs):
         user=self.get_object()
+        token = request.COOKIES.get('ACP')
+        
+        if token != request.user.id:
+            return Response(status=status.HTTP_400_BAD_REQUEST) 
         if user != self.request.user:
             return Response("Not Allowed", status=status.HTTP_403_FORBIDDEN)
         serializer=UserSerializer(user, data=request.data, partial=True)
@@ -246,6 +250,10 @@ class ChangePasswordView(views.APIView):
     def put(self, request):
         self.object=self.get_object()
         serializer=ChangePasswordSerializer(data=request.data)
+        token = request.COOKIES.get('ACP')
+        
+        if token != request.user.id:
+            return Response(status=status.HTTP_400_BAD_REQUEST) 
 
         if serializer.is_valid():
             old_password=serializer.data.get('old_password')
