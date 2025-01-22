@@ -30,3 +30,4 @@ class Emails():
             fail_silently=False
         )
         return send_mail
+    

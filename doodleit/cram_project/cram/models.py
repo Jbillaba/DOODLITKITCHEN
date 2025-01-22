@@ -37,6 +37,7 @@ class Doodle(models.Model):
     image=models.FileField()
     created_on=models.DateTimeField(auto_now_add=True)
     doodlr=models.ForeignKey(User, on_delete=models.CASCADE, related_name='doodler')
+    
 
     def __str__(self):
         return self.title

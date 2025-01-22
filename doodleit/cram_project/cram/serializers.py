@@ -39,6 +39,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
     num_of_following=serializers.SerializerMethodField("get_num_of_following")
     num_of_followers=serializers.SerializerMethodField("get_num_of_followers")
+    pinned_doodle=serializers.SerializerMethodField("get_pinned_doodle")
     class Meta:
         model=User
         fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle']
@@ -57,6 +58,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     def get_num_of_followers(self, object):
         follows=UserFollows.objects.filter(following_user_id=object.id).count()
         return follows
+    
+    def get_pinned_doodle(self, object):
+        return object.pinned_doodle.id
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
