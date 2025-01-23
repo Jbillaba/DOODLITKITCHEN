@@ -93,19 +93,18 @@ class UserFollowersViewSet(UserFollowsViewSet):
 
 class UserInFollowsView(views.APIView):
     permission_classes=(IsAuthenticated,) 
-
-    def get(self, request, following_id):
+    def get(self, request, following_user_id):
         user=self.request.user
-        target=self.kwargs['following_id']
+        target=self.kwargs['following_user_id']
         try:
-            follow=UserFollows.objects.get(user_id=user, following_user_id_id=target)
+            follow=UserFollows.objects.get(user_id=user, following_user_id=target)
             serializer_context={
             'request': request,
             }
             serializer=FollowsSerializer(follow, context=serializer_context).data
             return Response(serializer, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            return Response(False, status=status.HTTP_404_NOT_FOUND)
+            return Response(False, status=status.HTTP_400_BAD_REQUEST)
 
 class DoodleViewSet(viewsets.ModelViewSet):
     queryset=Doodle.objects.all()
@@ -314,7 +313,6 @@ class DeleteAccountView(views.APIView):
 class UserOtpViewSet(viewsets.ModelViewSet):
     serializer_class=UserOtpSerializer
     queryset=UserOtp.objects.all()
-
 
 class OtpGenerateView(views.APIView):
     permission_classes=(IsAuthenticated,)
