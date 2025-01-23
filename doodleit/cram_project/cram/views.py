@@ -93,11 +93,11 @@ class UserFollowersViewSet(UserFollowsViewSet):
 
 class UserInFollowsView(views.APIView):
     permission_classes=(IsAuthenticated,) 
-    def get(self, request, following_user_id):
+    def get(self, request, query):
         user=self.request.user
-        target=self.kwargs['following_user_id']
+        target=self.kwargs['query']
         try:
-            follow=UserFollows.objects.get(user_id=user, following_user_id=target)
+            follow=UserFollows.objects.get(user_id=user, following_user_id_id=target)
             serializer_context={
             'request': request,
             }
