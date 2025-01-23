@@ -60,8 +60,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return follows
     
     def get_pinned_doodle(self, object):
-        return object.pinned_doodle.id
-
+        try:
+            return object.pinned_doodle.id
+        except:
+            return 
+        
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
     post_id=serializers.SerializerMethodField("get_post_id")

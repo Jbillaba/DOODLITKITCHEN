@@ -56,14 +56,20 @@ class CurrentUser(views.APIView):
 class CurrentUserDoodles(views.APIView):
     permission_classes=(IsAuthenticated,)
     def get(self, request, format=None):
-        pinned_doodle=Doodle.objects.filter(id=request.user.pinned_doodle.id)
-        doodles=Doodle.objects.filter(doodlr=request.user).exclude(id=request.user.pinned_doodle.id)
-        results=chain(pinned_doodle, doodles)
         serializer_context={
             'request': request,
-        }
-        data=DoodleSerializer(results, context=serializer_context, many=True).data
-        return Response(data)
+            }
+        try:
+            pinned_doodle=Doodle.objects.filter(id=request.user.pinned_doodle.id)
+            doodles=Doodle.objects.filter(doodlr=request.user).exclude(id=request.user.pinned_doodle.id)
+            results=chain(pinned_doodle, doodles)
+            data=DoodleSerializer(results, context=serializer_context, many=True).data
+            return Response(data)
+        except:
+            doodles=Doodle.objects.filter(doodlr=request.user)
+            data=DoodleSerializer(doodles, context=serializer_context, many=True).data
+            return Response(data)
+
 
 class UserFollowsViewSet(viewsets.ModelViewSet):
     queryset=UserFollows.objects.all()
