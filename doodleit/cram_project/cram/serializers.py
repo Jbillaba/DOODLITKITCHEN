@@ -5,6 +5,14 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth import authenticate
 from django.db.models import Q, Count, Sum, Case, IntegerField, Sum, When
 
+class imageUrlField(serializers.RelatedField):
+    def to_representation(self, instance):
+        url=instance.user_image.url
+        request = self.context.get('request', None)
+        if request is not None:
+            return request.build_absolute_uri(url)
+        return url
+
 class RegisterSerializer(serializers.ModelSerializer):
     password=serializers.CharField(
         write_only=True, required=True, validators=[validate_password]
@@ -13,7 +21,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=User
-        fields=['username','email','password','password2']
+        fields=['username','email','password','password2', 'user_image']
     
     def validate(self, attrs):
         if attrs['password']!=attrs['password2']:
@@ -34,37 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
     
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    account_created=serializers.SerializerMethodField("get_time_since_created")
-    num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
-    num_of_following=serializers.SerializerMethodField("get_num_of_following")
-    num_of_followers=serializers.SerializerMethodField("get_num_of_followers")
-    pinned_doodle=serializers.SerializerMethodField("get_pinned_doodle")
-    class Meta:
-        model=User
-        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle']
 
-    def get_num_of_doodles(self, object):
-        doodles=Doodle.objects.filter(doodlr=object.id).count()
-        return doodles
-
-    def get_time_since_created(self, object):
-        return naturaltime(object.created_on)
-
-    def get_num_of_following(self, object):
-        following=UserFollows.objects.filter(user_id=object.id).count()
-        return following
-
-    def get_num_of_followers(self, object):
-        follows=UserFollows.objects.filter(following_user_id=object.id).count()
-        return follows
-    
-    def get_pinned_doodle(self, object):
-        try:
-            return object.pinned_doodle.id
-        except:
-            return 
-        
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
     post_id=serializers.SerializerMethodField("get_post_id")
@@ -88,14 +66,15 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
-    doodlr=serializers.SerializerMethodField('get_doodlr_id')
+    doodlr=imageUrlField(read_only=True)
+    doodlr_id=serializers.SerializerMethodField("get_doodlr_id")
     doodlr_username=serializers.SerializerMethodField("get_doodler")
     created_on=serializers.SerializerMethodField("get_timesince")
     number_of_comments=serializers.SerializerMethodField("get_number_of_comments")
     yeahs=serializers.SerializerMethodField("get_yeahs")
     class Meta: 
         model=Doodle
-        fields=['url','id','title','image','created_on', 'doodlr' ,'doodlr_username','number_of_comments','yeahs']
+        fields=['url','id','title','image','created_on', 'doodlr', 'doodlr_id' , 'doodlr_username' ,'number_of_comments','yeahs']
     def get_doodlr_id(self, object):
         return object.doodlr.id
 
@@ -129,6 +108,37 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         validated_data['doodlr']=self.context['request'].user
         return super(DoodleSerializer, self).create(validated_data)
+    
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    account_created=serializers.SerializerMethodField("get_time_since_created")
+    num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
+    num_of_following=serializers.SerializerMethodField("get_num_of_following")
+    num_of_followers=serializers.SerializerMethodField("get_num_of_followers")
+    pinned_doodle=serializers.SerializerMethodField("get_pinned_doodle")
+    class Meta:
+        model=User
+        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle', 'user_image']
+
+    def get_num_of_doodles(self, object):
+        doodles=Doodle.objects.filter(doodlr=object.id).count()
+        return doodles
+
+    def get_time_since_created(self, object):
+        return naturaltime(object.created_on)
+
+    def get_num_of_following(self, object):
+        following=UserFollows.objects.filter(user_id=object.id).count()
+        return following
+
+    def get_num_of_followers(self, object):
+        follows=UserFollows.objects.filter(following_user_id=object.id).count()
+        return follows
+    
+    def get_pinned_doodle(self, object):
+        try:
+            return object.pinned_doodle.id
+        except:
+            return ''
 
 class YeahSerializer(serializers.HyperlinkedModelSerializer):
     created_on=serializers.SerializerMethodField('get_timesince')
