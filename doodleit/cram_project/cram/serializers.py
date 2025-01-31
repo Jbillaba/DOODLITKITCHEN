@@ -1,9 +1,11 @@
-from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp, savedDoodles, Tags
+from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp, savedDoodles
 from rest_framework import serializers
+from rest_framework.fields import ListField
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth import authenticate
-from django.db.models import Q, Count, Sum, Case, IntegerField, Sum, When
+from django.db.models import Q, Count
+from taggit.serializers import (TagListSerializerField, TaggitSerializer)
 
 class imageUrlField(serializers.RelatedField):
     def to_representation(self, instance):
@@ -12,6 +14,15 @@ class imageUrlField(serializers.RelatedField):
         if request is not None:
             return request.build_absolute_uri(url)
         return url
+    
+class StringArrayField(ListField):
+    def to_representation(self, obj):
+        obj = super().to_representation(self, obj)
+        return ",".join([str(e) for e in obj])
+    
+    def to_internal_value(self, data):
+        data=data.split(",")
+        return super().to_internal_value(data)
 
 class RegisterSerializer(serializers.ModelSerializer):
     password=serializers.CharField(
@@ -36,6 +47,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
+            user_image=validated_data['user_image']
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -72,7 +84,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             return object.pinned_doodle.id
         except:
             return ''
-                
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
@@ -95,7 +106,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['author']=self.context['request'].user
         return super(CommentSerializer, self).create(validated_data)
 
-class DoodleSerializer(serializers.HyperlinkedModelSerializer):
+class DoodleSerializer(TaggitSerializer, serializers.HyperlinkedModelSerializer):
     content_type ='multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
     doodlr=imageUrlField(read_only=True)
     doodlr_id=serializers.SerializerMethodField("get_doodlr_id")
@@ -103,9 +114,10 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
     created_on=serializers.SerializerMethodField("get_timesince")
     number_of_comments=serializers.SerializerMethodField("get_number_of_comments")
     yeahs=serializers.SerializerMethodField("get_yeahs")
+    tags= TagListSerializerField()
     class Meta: 
         model=Doodle
-        fields=['url','id','title','image','created_on', 'doodlr', 'doodlr_id' , 'doodlr_username' ,'number_of_comments','yeahs']
+        fields=['url','id','title','image','created_on', 'doodlr', 'doodlr_id' , 'doodlr_username' ,'number_of_comments','yeahs', 'tags']
     def get_doodlr_id(self, object):
         return object.doodlr.id
 
@@ -135,7 +147,7 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
             ),
         )
         return yeahs
-
+    
     def create(self, validated_data):
         validated_data['doodlr']=self.context['request'].user
         return super(DoodleSerializer, self).create(validated_data)
@@ -235,8 +247,3 @@ class SavedDoodlesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=savedDoodles
         fields=['url', 'id', 'user_id', 'doodle_id']
-
-class TagsSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model=Tags
-        fields=['url', 'id', 'tag', 'doodle']

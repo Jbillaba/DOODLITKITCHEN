@@ -2,8 +2,9 @@ from django.db import models
 import uuid
 from django.db.models import UniqueConstraint, CheckConstraint
 from django.contrib.auth.models import AbstractUser
-from django.utils import timesince
-
+from django.utils.translation import gettext_lazy as _
+from taggit.managers import TaggableManager
+from taggit.models import GenericUUIDTaggedItemBase, TaggedItemBase
 
 YEAH_CHOICES = {
     "HPY":"yeah!!",
@@ -12,9 +13,15 @@ YEAH_CHOICES = {
     "CFD":"yeah.?"
 }
 
+class UUIDTaggedItem(GenericUUIDTaggedItemBase, TaggedItemBase):
+
+    class Meta:
+        verbose_name = _("Tag")
+        verbose_name_plural = _("Tags")
+
 class User(AbstractUser):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_image=models.FileField()
+    user_image=models.FileField(blank=True, null=True)
     username=models.CharField(max_length=20, unique=True)
     email=models.EmailField(max_length=40, unique=True)
     password=models.CharField(max_length=128)
@@ -38,7 +45,7 @@ class Doodle(models.Model):
     image=models.FileField()
     created_on=models.DateTimeField(auto_now_add=True)
     doodlr=models.ForeignKey(User, on_delete=models.CASCADE, related_name='doodler')
-    
+    tags = TaggableManager(through=UUIDTaggedItem, blank=True)
 
     def __str__(self):
         return self.title
@@ -82,8 +89,3 @@ class savedDoodles(models.Model):
     class Meta: constraints=[
       UniqueConstraint(fields=['user_id', 'doodle_id'], name='unique_saves')
     ]
-      
-class Tags(models.Model):
-    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tag=models.CharField(max_length=20)
-    doodle=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='tagged_post')

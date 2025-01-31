@@ -11,7 +11,6 @@ router.register(r'yeahs', views.YeahViewSet)
 router.register(r'userFollows', views.UserFollowsViewSet)
 router.register(r'userOtp', views.UserOtpViewSet)
 router.register(r'savedDoodles', views.SavedDoodleViewSet)
-router.register(r'tags', views.TagsViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),

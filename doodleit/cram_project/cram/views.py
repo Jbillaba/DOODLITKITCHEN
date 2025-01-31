@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp, savedDoodles, Tags
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer, UserOtpSerializer, SavedDoodlesSerializer, TagsSerializer
+from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp, savedDoodles, UUIDTaggedItem
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer, UserOtpSerializer, SavedDoodlesSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from itertools import chain
 import datetime
 from cram.services import OTP, Emails
-
+from taggit.serializers import TaggitSerializer
 Email=Emails()
 
 class RegisterView(generics.CreateAPIView):
@@ -113,7 +113,7 @@ class DoodleViewSet(viewsets.ModelViewSet):
     parser_classes=(MultiPartParser,)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['created_on']
-    search_fields=['doodlr__id']
+    search_fields=['doodlr__id', 'tags__name']
 
     def destroy(self, request, *args, **kwargs):
         doodle=self.get_object()
@@ -251,10 +251,13 @@ class SearchView(views.APIView):
             doodles=Doodle.objects.filter(title__contains=search)
             doodleSerializer=DoodleSerializer(doodles, context=serializer_context, many=True).data
 
+            tags=Doodle.objects.filter(tags__name__contains=search)
+            tagsSerializer=DoodleSerializer(tags, context=serializer_context, many=True).data
+
             users=User.objects.filter(username__contains=search)
             userSerializer=UserSerializer(users, context=serializer_context, many=True ).data
             
-            result_list=chain(userSerializer, doodleSerializer)
+            result_list=chain(userSerializer, doodleSerializer, tagsSerializer)
             return Response(result_list)
         except ObjectDoesNotExist:
             return Response("search does not match anything")
@@ -365,8 +368,3 @@ class OtpAuthenticateView(views.APIView):
             return response
         except:
             Response('incorrect credentials', status=status.HTTP_400_BAD_REQUEST)
-
-class TagsViewSet(viewsets.ModelViewSet):
-    queryset=Tags.objects.all()
-    serializer_class=TagsSerializer
-    permission_classes=(IsAuthenticatedOrReadOnly,)
