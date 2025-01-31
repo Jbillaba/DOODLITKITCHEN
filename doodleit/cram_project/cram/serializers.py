@@ -1,4 +1,4 @@
-from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp
+from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp, savedDoodles, Tags
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -42,6 +42,37 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
     
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    account_created=serializers.SerializerMethodField("get_time_since_created")
+    num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
+    num_of_following=serializers.SerializerMethodField("get_num_of_following")
+    num_of_followers=serializers.SerializerMethodField("get_num_of_followers")
+    pinned_doodle=serializers.SerializerMethodField("get_pinned_doodle")
+    class Meta:
+        model=User
+        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle', 'user_image']
+
+    def get_num_of_doodles(self, object):
+        doodles=Doodle.objects.filter(doodlr=object.id).count()
+        return doodles
+
+    def get_time_since_created(self, object):
+        return naturaltime(object.created_on)
+
+    def get_num_of_following(self, object):
+        following=UserFollows.objects.filter(user_id=object.id).count()
+        return following
+
+    def get_num_of_followers(self, object):
+        follows=UserFollows.objects.filter(following_user_id=object.id).count()
+        return follows
+
+    def get_pinned_doodle(self, object):
+        try:
+            return object.pinned_doodle.id
+        except:
+            return ''
+                
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
@@ -109,36 +140,7 @@ class DoodleSerializer(serializers.HyperlinkedModelSerializer):
         validated_data['doodlr']=self.context['request'].user
         return super(DoodleSerializer, self).create(validated_data)
     
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    account_created=serializers.SerializerMethodField("get_time_since_created")
-    num_of_doodles=serializers.SerializerMethodField("get_num_of_doodles")
-    num_of_following=serializers.SerializerMethodField("get_num_of_following")
-    num_of_followers=serializers.SerializerMethodField("get_num_of_followers")
-    pinned_doodle=serializers.SerializerMethodField("get_pinned_doodle")
-    class Meta:
-        model=User
-        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle', 'user_image']
 
-    def get_num_of_doodles(self, object):
-        doodles=Doodle.objects.filter(doodlr=object.id).count()
-        return doodles
-
-    def get_time_since_created(self, object):
-        return naturaltime(object.created_on)
-
-    def get_num_of_following(self, object):
-        following=UserFollows.objects.filter(user_id=object.id).count()
-        return following
-
-    def get_num_of_followers(self, object):
-        follows=UserFollows.objects.filter(following_user_id=object.id).count()
-        return follows
-    
-    def get_pinned_doodle(self, object):
-        try:
-            return object.pinned_doodle.id
-        except:
-            return ''
 
 class YeahSerializer(serializers.HyperlinkedModelSerializer):
     created_on=serializers.SerializerMethodField('get_timesince')
@@ -228,3 +230,13 @@ class UserOtpSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_userid(self, object):
         return object.user.id
+    
+class SavedDoodlesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model=savedDoodles
+        fields=['url', 'id', 'user_id', 'doodle_id']
+
+class TagsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model=Tags
+        fields=['url', 'id', 'tag', 'doodle']

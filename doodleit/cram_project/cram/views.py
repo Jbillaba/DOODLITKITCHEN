@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, filters, views, status
 from django.contrib.auth import login, logout
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp
-from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer, UserOtpSerializer
+from .models import User, Doodle, Comment, Yeahs, UserFollows, UserOtp, savedDoodles, Tags
+from .serializers import UserSerializer, RegisterSerializer, DoodleSerializer, LoginSerializer, CommentSerializer, YeahSerializer, FollowsSerializer, ChangePasswordSerializer, DeleteAccountSerializer, OTPSerializer, UserOtpSerializer, SavedDoodlesSerializer, TagsSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -178,6 +178,19 @@ class YeahViewSet(viewsets.ModelViewSet):
             return Response("not allowed", status=status.HTTP_403_FORBIDDEN)
         yeah.delete()
         return Response("unliked post", status=status.HTTP_200_OK)
+    
+class SavedDoodleViewSet(viewsets.ModelViewSet):
+    queryset=savedDoodles.objects.all()
+    serializer_class=SavedDoodlesSerializer
+    permission_classes=(IsAuthenticated,)
+
+    def destroy(self, request, *args, **kwargs):
+        saved_doodle=self.get_object()
+        if saved_doodle.user_id != self.request.user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        saved_doodle.delete()
+        return Response(status=status.HTTP_200_OK)
+    
 
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
@@ -352,3 +365,8 @@ class OtpAuthenticateView(views.APIView):
             return response
         except:
             Response('incorrect credentials', status=status.HTTP_400_BAD_REQUEST)
+
+class TagsViewSet(viewsets.ModelViewSet):
+    queryset=Tags.objects.all()
+    serializer_class=TagsSerializer
+    permission_classes=(IsAuthenticatedOrReadOnly,)

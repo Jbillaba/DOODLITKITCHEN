@@ -73,3 +73,17 @@ class UserFollows(models.Model):
                 UniqueConstraint(fields=['user_id', 'following_user_id'], name='unique_following'),
                 CheckConstraint(check=~models.Q(user_id=models.F('following_user_id')), name='cannot_follow_self')
             ]
+        
+class savedDoodles(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user_id=models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_saved')
+    doodle_id=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='doodle_saved')
+
+    class Meta: constraints=[
+      UniqueConstraint(fields=['user_id', 'doodle_id'], name='unique_saves')
+    ]
+      
+class Tags(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tag=models.CharField(max_length=20)
+    doodle=models.ForeignKey(Doodle, on_delete=models.CASCADE, related_name='tagged_post')
