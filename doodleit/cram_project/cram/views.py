@@ -190,8 +190,22 @@ class SavedDoodleViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         saved_doodle.delete()
         return Response(status=status.HTTP_200_OK)
-    
 
+class CurrentUserSavedDoodles(views.APIView):
+    permission_classes=(IsAuthenticated,)
+    def get_user(self, request):
+        return request.user
+
+    def get(self, request):
+        try:
+            user=self.get_user(request)
+            saved_doodles=savedDoodles.objects.filter(user_id=user)
+            serializer=SavedDoodlesSerializer(saved_doodles, many=True, context={'request':request}).data
+            return Response(serializer)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    
 class LoginView(KnoxLoginView):
     serializer_class=LoginSerializer
     permission_classes = (AllowAny,)

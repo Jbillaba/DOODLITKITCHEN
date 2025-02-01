@@ -19,6 +19,7 @@ urlpatterns = [
     path('logged_in/', views.isLoggedInView.as_view(), name='check_auth-detail'),
     path('current_user/', views.CurrentUser.as_view(), name='current_user-detail'),
     path('current_doodles/', views.CurrentUserDoodles.as_view(), name='current_doodles-list'),
+    path('current_bookmarks/', views.CurrentUserSavedDoodles.as_view(), name='current_users_saved_doodles'),
     path('user_following/', views.UserFollowingViewSet.as_view({'get':'list'}), name='user_following-list'),
     path('user_followers/', views.UserFollowersViewSet.as_view({'get':'list'}), name='user_followers-list'),
     path('is_following/<str:query>/', views.UserInFollowsView.as_view(), name='user_following-detail'),

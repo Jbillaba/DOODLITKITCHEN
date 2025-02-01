@@ -6,6 +6,7 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth import authenticate
 from django.db.models import Q, Count
 from taggit.serializers import (TagListSerializerField, TaggitSerializer)
+from cram.utils import Comma_splitter
 
 class imageUrlField(serializers.RelatedField):
     def to_representation(self, instance):
@@ -114,7 +115,8 @@ class DoodleSerializer(TaggitSerializer, serializers.HyperlinkedModelSerializer)
     created_on=serializers.SerializerMethodField("get_timesince")
     number_of_comments=serializers.SerializerMethodField("get_number_of_comments")
     yeahs=serializers.SerializerMethodField("get_yeahs")
-    tags= TagListSerializerField()
+    tags=TagListSerializerField()
+
     class Meta: 
         model=Doodle
         fields=['url','id','title','image','created_on', 'doodlr', 'doodlr_id' , 'doodlr_username' ,'number_of_comments','yeahs', 'tags']

@@ -221,3 +221,7 @@ CACHES={
 }
 
 EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
+
+#taggit settings
+TAGGIT_TAGS_FROM_STRING = 'cram.utils.Comma_splitter'
+TAGGIT_STRING_FROM_TAGS = 'cram.utils.Comma_joiner'
