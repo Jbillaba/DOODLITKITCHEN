@@ -246,10 +246,14 @@ class UserOtpSerializer(serializers.HyperlinkedModelSerializer):
         return object.user.id
     
 class SavedDoodlesSerializer(serializers.HyperlinkedModelSerializer):
+    user_id=serializers.SerializerMethodField("get_id")
     class Meta:
         model=savedDoodles
         fields=['url', 'id', 'user_id', 'doodle_id']
 
-        def create(self, validated_data):
-            validated_data['user_id']=self.context['request'].user
-            return super(FollowsSerializer, self).create(validated_data)
+    def create(self, validated_data):
+        validated_data['user_id']=self.context['request'].user
+        return super(SavedDoodlesSerializer, self).create(validated_data)
+    
+    def get_id(self, object): 
+        return object.user_id.id
