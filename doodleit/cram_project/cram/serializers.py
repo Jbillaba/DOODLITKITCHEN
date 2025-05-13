@@ -249,3 +249,7 @@ class SavedDoodlesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=savedDoodles
         fields=['url', 'id', 'user_id', 'doodle_id']
+
+        def create(self, validated_data):
+            validated_data['user_id']=self.context['request'].user
+            return super(FollowsSerializer, self).create(validated_data)
