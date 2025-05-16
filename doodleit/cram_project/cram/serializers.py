@@ -84,7 +84,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         try:
             return object.pinned_doodle.id
         except:
-            return ''
+            return None
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     author=serializers.SerializerMethodField("get_username")
@@ -257,3 +257,5 @@ class SavedDoodlesSerializer(serializers.HyperlinkedModelSerializer):
     
     def get_id(self, object): 
         return object.user_id.id
+    
+ 
