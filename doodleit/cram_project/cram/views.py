@@ -197,22 +197,19 @@ class CurrentUserSavedDoodles(views.APIView):
         return request.user
 
     def get(self, request):
-        # try:
-            list = set()
+        try:
             serializer_context={
             'request': request,
             }
             user=self.get_user(request)
             saved_doodles=savedDoodles.objects.filter(user_id=user)
-            doodle_ids=saved_doodles.values_list('doodle_id', flat=True) #this returns a list of the doodles in the bookmarks using this we should retrieve a array of the posts
-            for id in doodle_ids:
-                post = Doodle.objects.filter(id=id)
-                list.add(post)
+            doodle_ids=saved_doodles.values_list('doodle_id', flat=True)
+            list=Doodle.objects.filter(id__in=doodle_ids)
             serializer=DoodleSerializer(list, many=True, context=serializer_context).data
             return Response(serializer)
 
-        # except:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     
     
 class LoginView(KnoxLoginView):
