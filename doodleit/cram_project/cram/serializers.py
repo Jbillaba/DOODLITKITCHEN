@@ -6,7 +6,6 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.auth import authenticate
 from django.db.models import Q, Count
 from taggit.serializers import (TagListSerializerField, TaggitSerializer)
-from cram.utils import Comma_splitter
 
 class imageUrlField(serializers.RelatedField):
     def to_representation(self, instance):
@@ -30,6 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         write_only=True, required=True, validators=[validate_password]
     )
     password2=serializers.CharField(write_only=True, required=True)
+    user_image=serializers.FileField(required=False)
     
     class Meta:
         model=User
@@ -48,7 +48,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            user_image=validated_data['user_image']
         )
         user.set_password(validated_data['password'])
         user.save()
@@ -224,7 +223,7 @@ class ChangePasswordSerializer(serializers.Serializer):
     confirm_new_password=serializers.CharField(required=True)
 
     def validate(self, attrs):
-        if attrs['new_password'] != attrs['new_password']:
+        if attrs['new_password'] != attrs['confirm_new_password']:
             raise serializers.ValidationError(
                 {'passwords': 'passwords didnt match.'}
             )

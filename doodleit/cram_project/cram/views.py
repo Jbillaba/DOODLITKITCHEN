@@ -287,16 +287,21 @@ class ChangePasswordView(views.APIView):
     model=User
     permission_classes=(IsAuthenticated,)
 
+    def get(self, req): 
+        return Response({'details': 'change password here'} )
+
     def get_object(self):
         return self.request.user
     
     def put(self, request):
         self.object=self.get_object()
         serializer=ChangePasswordSerializer(data=request.data)
-        token = request.COOKIES.get('ACP')
         
-        if token != request.user.id:
-            return Response(status=status.HTTP_400_BAD_REQUEST) 
+        if 'uid' and 'token' not in request.COOKIES:
+            if 'uid' != request.user.id:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
 
         if serializer.is_valid():
             old_password=serializer.data.get('old_password')
