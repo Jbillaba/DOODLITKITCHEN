@@ -297,10 +297,10 @@ class ChangePasswordView(views.APIView):
         self.object=self.get_object()
         serializer=ChangePasswordSerializer(data=request.data)
         
-        if 'uid' and 'token' not in request.COOKIES:
+        if 'uid' not in request.COOKIES:
             if 'uid' != request.user.id:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            return Response(status=status.HTTP_403_FORBIDDEN)
+                return Response( {"error": "uid token not matching req id"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "no token in request"},status=status.HTTP_403_FORBIDDEN)
 
 
         if serializer.is_valid():
@@ -330,9 +330,10 @@ class DeleteAccountView(views.APIView):
     def post(self, request):
         self.object=self.get_object()
         serializer=DeleteAccountSerializer(data=request.data)
-        token = request.COOKIES.get('ACP')
         
-        if token != request.user.id:
+        if 'uid' not in request.COOKIES:
+            if 'uid' != request.user.id:
+                return Response(status=status.HTTP_403_FORBIDDEN)
             return Response(status=status.HTTP_400_BAD_REQUEST) 
         
         if serializer.is_valid():
@@ -393,3 +394,8 @@ class OtpAuthenticateView(views.APIView):
             return response
         except:
             Response('incorrect credentials', status=status.HTTP_400_BAD_REQUEST)
+
+
+class TagView(views.APIView):
+    def get(self, request):
+        return Response({"details": "should return an array of all available tags and return a tuple of posts associated with said tags"}, status=status.HTTP_200_OK)

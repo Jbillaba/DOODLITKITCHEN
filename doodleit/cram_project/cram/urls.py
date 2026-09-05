@@ -30,4 +30,5 @@ urlpatterns = [
     path('authenticate/', views.OtpAuthenticateView.as_view(), name='authenticate'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
     path('delete_account/', views.DeleteAccountView.as_view(), name='delete_account'),
+    path('tags/', views.TagView.as_view(), name='tags_view')
 ]
