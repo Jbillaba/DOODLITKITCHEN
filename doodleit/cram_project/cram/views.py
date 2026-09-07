@@ -13,6 +13,7 @@ import datetime
 from cram.services import OTP, Emails
 from taggit.serializers import TaggitSerializer
 Email=Emails()
+from cram.permissions import IsOwnerOrReadOnly
 
 class RegisterView(generics.CreateAPIView):
     queryset=User.objects.all()
@@ -22,10 +23,29 @@ class RegisterView(generics.CreateAPIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset=User.objects.all()
     serializer_class=UserSerializer
-    permission_classes=(IsAuthenticatedOrReadOnly,)
+    permission_classes=(IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly)
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['username']
     search_fields=['username']
+
+    
+    def partial_update(self, request, *args, **kwargs):
+        account=self.get_object()
+        if account.id != self.request.user.id:
+            return Response({"error":"Not account owner"}, status=status.HTTP_403_FORBIDDEN)
+        serializer=UserSerializer(account, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("account edited", status=status.HTTP_200_OK)
+    
+    def update(self, request, *args, **kwargs):
+        account=self.get_object()
+        if account.id != self.request.user.id:
+            return Response({"error":"Not account owner"}, status=status.HTTP_403_FORBIDDEN)
+        serializer=UserSerializer(account, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("account edited", status=status.HTTP_200_OK)
 
 class CurrentUser(views.APIView):
     permission_classes=(IsAuthenticated,)
@@ -36,22 +56,7 @@ class CurrentUser(views.APIView):
         }
         data=UserSerializer(user, context=serializer_context).data
         return Response(data)
-    
-    def get_object(self):
-        return self.request.user
-
-    def patch(self, request, *args, **kwargs):
-        user=self.get_object()
-        token = request.COOKIES.get('ACP')
-        
-        if token != request.user.id:
-            return Response(status=status.HTTP_400_BAD_REQUEST) 
-        if user != self.request.user:
-            return Response("Not Allowed", status=status.HTTP_403_FORBIDDEN)
-        serializer=UserSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response("changes to profile made", status=status.HTTP_200_OK)
+   
 
 class CurrentUserDoodles(views.APIView):
     permission_classes=(IsAuthenticated,)
@@ -245,8 +250,10 @@ class LoginView(KnoxLoginView):
 
 class LogoutView(views.APIView):
     def post(self, req, format=None):
+        if 'token' not in req.COOKIES:
+            return Response("No need to log out", status=status.HTTP_400_BAD_REQUEST)
         logout(req)
-        response=Response({'details':'bye bye'})
+        response=Response({'details':'bye bye'}, status=status.HTTP_200_OK)
         response.delete_cookie('uid')
         response.delete_cookie('token')
         return response
@@ -397,5 +404,6 @@ class OtpAuthenticateView(views.APIView):
 
 
 class TagView(views.APIView):
+    permission_classes=(AllowAny,)
     def get(self, request):
         return Response({"details": "should return an array of all available tags and return a tuple of posts associated with said tags"}, status=status.HTTP_200_OK)

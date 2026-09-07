@@ -29,7 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         write_only=True, required=True, validators=[validate_password]
     )
     password2=serializers.CharField(write_only=True, required=True)
-    user_image=serializers.FileField(required=False)
+    user_image=serializers.FileField(required=False,)
     
     class Meta:
         model=User
