@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
 class UserModelTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -19,11 +18,12 @@ class UserModelTestCase(TestCase):
         )
 
     def test_username_max_length(self):
+        print("Method: testing username max_length")
         user = User.objects.get(username="doodlrTesting")
-        max_length = User._meta.get_field('username').max_length
+        max_length = user._meta.get_field('username').max_length
         self.assertEqual(max_length, 20)
 
-    def test_user_image_not_empty(self):
+    def test_profile_picture_not_empty(self):
         print("Method: testing not empty profile_picture")
         user = User.objects.get(username="doodlrTesting")
         user_image = user._meta.get_field('profile_picture')
