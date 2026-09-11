@@ -29,3 +29,10 @@ class UserModelTestCase(TestCase):
         user_image = user._meta.get_field('profile_picture')
         print(user.profile_picture)
         self.assertIsNotNone(user_image)
+
+    def test_profile_picture_is_default(self):
+        print("Method: testing if profile uses the default picture when value is left empty")
+        user = User.objects.get(username="doodlrTesting")
+        profile_picture= user._meta.get_field('profile_picture')
+        print(profile_picture)
+        
