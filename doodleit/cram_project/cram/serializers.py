@@ -9,7 +9,7 @@ from taggit.serializers import (TagListSerializerField, TaggitSerializer)
 
 class imageUrlField(serializers.RelatedField):
     def to_representation(self, instance):
-        url=instance.user_image.url
+        url=instance.profile_picture.url
         request = self.context.get('request', None)
         if request is not None:
             return request.build_absolute_uri(url)
@@ -62,7 +62,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     pinned_doodle=serializers.SerializerMethodField("get_pinned_doodle")
     class Meta:
         model=User
-        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle', 'user_image']
+        fields=['url','id','username','email', 'bio', 'account_created', 'num_of_doodles', 'num_of_following', 'num_of_followers', 'pinned_doodle', 'profile_picture']
 
     def get_num_of_doodles(self, object):
         doodles=Doodle.objects.filter(doodlr=object.id).count()
