@@ -156,6 +156,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #DRF settings 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('cram.middleware.AuthFromCookie',),
+    'EXCEPTION_HANDLER': 'cram.exceptions.invalid_token'
 }
 
 CSRF_COOKIE_HTTPONLY = True

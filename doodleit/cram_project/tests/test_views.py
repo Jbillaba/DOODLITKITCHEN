@@ -26,3 +26,5 @@ class DoodleViewTestCase(TestCase):
 
         self.assertEqual(doodle.doodlr, self.user)
         self.assertEqual(doodle.doodlr.username, 'testingDoodlr')
+
+    
