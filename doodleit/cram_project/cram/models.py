@@ -41,7 +41,7 @@ class UserOtp(models.Model):
 class Doodle(models.Model):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title=models.CharField(max_length=40, default='')
-    image=models.FileField()
+    image=models.FileField(upload_to='doodles/')
     created_on=models.DateTimeField(auto_now_add=True)
     doodlr=models.ForeignKey(User, on_delete=models.CASCADE, related_name='doodler')
     tags = TaggableManager(blank=True, through=UUIDTaggedItem)
