@@ -4,7 +4,7 @@ from . import views
 from django.contrib import admin
 
 router = DefaultRouter()
-router.register(r'users', views.UserViewSet)
+router.register(r'users', views.UserViewSet, basename='user')
 router.register(r'doodles', views.DoodleViewSet)
 router.register(r'comments', views.CommentViewSet)
 router.register(r'yeahs', views.YeahViewSet)

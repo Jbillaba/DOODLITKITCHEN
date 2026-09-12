@@ -27,6 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends=[filters.OrderingFilter, filters.SearchFilter]
     ordering_fields=['username']
     search_fields=['username']
+    lookup_field='username'
 
     
     def partial_update(self, request, *args, **kwargs):
