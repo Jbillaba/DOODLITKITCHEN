@@ -23,6 +23,9 @@ DJANGOKEY = os.getenv("SECRET_KEY")
 DB_NAME = os.getenv("DATABASENAME")
 DB_USER = os.getenv("DATABASEUSER")
 DB_PASSWORD = os.getenv("DATABASEUSERPASS")
+GMAIL_CLIENT_SECRET = os.getenv("GMAIL_API_CLIENT_ID")
+GMAIL_CLIENT_ID =  os.getenv("GMAIL_API_CLIENT_SECRET")
+GMAIL_TOKEN = os.getenv("GMAIL_API_REFRESH_TOKEN")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -55,7 +58,8 @@ INSTALLED_APPS = [
     'storages',
     'corsheaders',
     'django_extensions',
-    'taggit'
+    'taggit',
+    'gmailapi_backend',
 ]
 
 MIDDLEWARE = [
@@ -222,6 +226,10 @@ CACHES={
 }
 
 EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
+
+GMAIL_API_CLIENT_ID = GMAIL_CLIENT_ID
+GMAIL_API_CLIENT_SECRET =  GMAIL_CLIENT_SECRET
+GMAIL_API_CLIENT_REFRESH_TOKEN = GMAIL_TOKEN
 
 #taggit settings
 TAGGIT_TAGS_FROM_STRING = 'cram.utils.Comma_splitter'
